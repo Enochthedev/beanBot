@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@utils/*": ["src/utils/*"],
+      "@bot/*": ["src/bot/*"],
+      "@config/*": ["src/config/*"],
+      "@domains/*": ["src/domains/*"],
+      "@handlers/*": ["src/handlers/*"],
+      "@interactions/*": ["src/interactions/*"],
+      "@middlewares/*": ["src/middlewares/*"]
+    }
+  },
+  "include": ["src"]
+}
