@@ -1,6 +1,7 @@
 import { client } from '@bot/client';
 import { config } from '@config/index';
 import { registerCommandHandler } from '@handlers/commands';
+import { registerMessageHandlers } from '@handlers/messages/register-message-handlers';
 import { deployCommands } from '@bot/deploy';
 import chalk from 'chalk';
 
@@ -10,6 +11,7 @@ client.once('ready', async () => {
   console.log(chalk.blueBright('🔄 Initializing handlers and deploying commands...'));
 
   await registerCommandHandler(client);
+  await registerMessageHandlers(client);
   await deployCommands();
 
   console.log(
