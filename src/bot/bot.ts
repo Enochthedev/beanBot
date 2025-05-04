@@ -21,6 +21,8 @@ client.once('ready', async () => {
   );
 });
 
+console.log(chalk.yellowBright('⚠️  Note: Global commands can take up to 1 hour to propagate to all servers!'));
+console.log(chalk.yellowBright('⚠️  Make sure to set the bot token in your .env file!'));
 client.login(config.botToken);
 
 console.log(chalk.cyan('🤖 Bot is running...'));

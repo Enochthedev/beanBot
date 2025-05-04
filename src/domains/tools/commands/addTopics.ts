@@ -1,3 +1,5 @@
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, TextChannel, ChannelType } from 'discord.js';
+
 const CHANNEL_TOPICS = {
   '👋-welcome': 'Welcome to the server! Start your journey here.',
   '📢-announcements': 'Important updates and news.',
@@ -21,8 +23,6 @@ const CHANNEL_TOPICS = {
   '📬-contact-staff': 'Contact the staff team.',
 };
 
-import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, TextChannel } from 'discord.js';
-
 export const data = new SlashCommandBuilder()
   .setName('add-topics')
   .setDescription('Auto-set all channel topics based on predefined suggestions')
@@ -31,14 +31,23 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) return interaction.reply({ content: '❌ Must be run in a server.', ephemeral: true });
 
+  await interaction.deferReply({ ephemeral: true }); // Acknowledge right away
+
   let updated = 0;
+  // Loop through all entries in the topics map
   for (const [channelName, topic] of Object.entries(CHANNEL_TOPICS)) {
-    const channel = interaction.guild.channels.cache.find(c => c.name === channelName);
-    if (channel instanceof TextChannel) {
+    // Find a text channel with EXACT name match (case-sensitive)
+    const channel = interaction.guild.channels.cache.find(
+      c =>
+        c.type === ChannelType.GuildText && // Only text channels
+        c.name === channelName              // Exact name
+    ) as TextChannel | undefined;
+
+    if (channel) {
       await channel.setTopic(topic);
       updated++;
     }
   }
 
-  await interaction.reply({ content: `✅ Set topics for ${updated} channels!`, ephemeral: true });
+  await interaction.editReply({ content: `✅ Set topics for ${updated} channel${updated !== 1 ? 's' : ''}!` });
 }

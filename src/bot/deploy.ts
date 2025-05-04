@@ -9,23 +9,18 @@ export async function deployCommands() {
 
   try {
     const body = commands.map((c) => c.data.toJSON());
-    const scope = config.useGlobalCommands ? chalk.magentaBright('global') : chalk.cyanBright(`guild (${config.guildId})`);
-    console.log(`🌍 Using ${scope} commands...`);
+    console.log(chalk.magentaBright('🌍 Using global commands...'));
+
     if (body.length === 0) {
       console.log(chalk.yellowBright('⚠️  No commands to deploy! Did you add any commands?'));
       return;
     }
     console.log(chalk.blue('📜 Commands to be deployed:'), chalk.bold(body.map(cmd => cmd.name).join(', ')));
 
-    if (!config.useGlobalCommands && !config.guildId) {
-      throw new Error('GUILD_ID must be set in .env or config to deploy guild commands');
-    }
+    await rest.put(Routes.applicationCommands(config.clientId), { body });
 
-    await (config.useGlobalCommands
-      ? rest.put(Routes.applicationCommands(config.clientId), { body })
-      : rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId!), { body })
-    );
     console.log(chalk.greenBright('✅ Commands deployed successfully!'));
+    console.log(chalk.yellowBright('⚠️  Note: Global commands can take up to 1 hour to propagate to all servers!'));
   } catch (err) {
     console.error(chalk.red('❌ Failed to deploy commands:'), err instanceof Error ? err.message : err);
   }

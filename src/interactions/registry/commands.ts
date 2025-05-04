@@ -5,7 +5,7 @@ import { getDirname } from '@utils/paths';
 import type { SlashCommand } from '@interactions/shared';
 import chalk from 'chalk';
 
-const DOMAINS: string[] = ["core","tools"];
+const DOMAINS: string[] = ["core","tools","communication"];
 
 export async function loadCommands(): Promise<SlashCommand[]> {
   const commands: SlashCommand[] = [];
