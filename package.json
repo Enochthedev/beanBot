@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx src/bot/bot.ts",
-    "deploy": "tsx src/bot/deploy.ts",
-    "start": "npm install && npm run dev"
+    "deploy": "tsx src/bot/deploy.ts"
   },
   "keywords": [],
   "author": "",
