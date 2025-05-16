@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsx src/bot/bot.ts",
     "dev": "tsx src/bot/bot.ts",
     "deploy": "tsx src/bot/deploy.ts"
   },
