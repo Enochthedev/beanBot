@@ -1,19 +1,32 @@
-import { 
-  SlashCommandBuilder, 
-  ChatInputCommandInteraction, 
-  PermissionFlagsBits, 
-  ChannelType 
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  PermissionFlagsBits,
+  ChannelType,
 } from 'discord.js';
+
+export const data = new SlashCommandBuilder()
+  .setName('set-topic')
+  .setDescription('Set a new topic for a text channel')
+  .addChannelOption(opt =>
+    opt.setName('channel')
+      .setDescription('The channel to set the topic for')
+      .addChannelTypes(ChannelType.GuildText)
+      .setRequired(true)
+  )
+  .addStringOption(opt =>
+    opt.setName('topic')
+      .setDescription('New topic content')
+      .setRequired(true)
+  );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const channel = interaction.options.getChannel('channel');
   const topic = interaction.options.getString('topic');
 
-  // Check if user is admin OR has "team" or "OG" role
   const member = await interaction.guild?.members.fetch(interaction.user.id);
-  const hasRole = member?.roles.cache.some(
-    r => ['team'].includes(r.name.toLowerCase())
-  );
+  const hasRole = member?.roles.cache.some(r => ['team'].includes(r.name.toLowerCase()));
+
   if (
     !interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels) &&
     !hasRole
@@ -26,10 +39,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   try {
-    // @ts-ignore (discord.js types issue, but works at runtime)
+    // @ts-ignore
     await channel.setTopic(topic!);
-    await interaction.reply({ content: `✅ Topic for <#${channel.id}> set to:\n> ${topic}`, ephemeral: true });
+    await interaction.reply({
+      content: `✅ Topic for <#${channel.id}> set to:\n> ${topic}`,
+      ephemeral: true,
+    });
   } catch (error) {
-    await interaction.reply({ content: '❌ Failed to set topic. Do I have permission?', ephemeral: true });
+    await interaction.reply({
+      content: '❌ Failed to set topic. Do I have permission?',
+      ephemeral: true,
+    });
   }
 }
