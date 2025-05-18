@@ -32,6 +32,11 @@ export const data = new SlashCommandBuilder()
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels);
 
+export const meta = {
+  example: '/edit-channel channel:#bounties new_name:"early-alpha" topic:"Latest mints + leaks" new_category:"Opportunities"',
+  output: '✅ Channel updated successfully.'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guild = interaction.guild;
   if (!guild) return interaction.reply({ content: '❌ Must be run in a server.', ephemeral: true });

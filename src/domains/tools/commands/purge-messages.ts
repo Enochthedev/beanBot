@@ -24,6 +24,11 @@ export const data = new SlashCommandBuilder()
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages);
 
+export const meta = {
+  example: '/purge-messages channel:#general count:25',
+  output: '✅ Successfully deleted 25 messages from #general.'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   const count = interaction.options.getInteger('count', true);
   const channel = interaction.options.getChannel('channel', true) as TextChannel;

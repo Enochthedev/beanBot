@@ -73,7 +73,10 @@ export const data = new SlashCommandBuilder()
   .setName('build-channels')
   .setDescription('Auto-build your Web3 community channel structure with permissions')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
-
+export const meta = {
+  example: '/build-channels',
+  output: '✅ Structure created with permissions! Onboarding is ready to go.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guild = interaction.guild;
   if (!guild) return interaction.reply({ content: '❌ Must be run in a server.', ephemeral: true });

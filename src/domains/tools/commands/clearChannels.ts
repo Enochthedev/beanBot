@@ -13,6 +13,11 @@ export const data = new SlashCommandBuilder()
     opt.setName('keep3').setDescription('Channel name to keep (e.g. web3-talk)').setRequired(true)
   );
 
+export const meta = {
+  example: '/clear-channels keep1:"general" keep2:"announcements" keep3:"web3-talk"',
+  output: '✅ Cleared X channels. Kept: **general, announcements, web3-talk**.'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   // Permission check (Admins only)
   if (!interaction.memberPermissions?.has('Administrator')) {

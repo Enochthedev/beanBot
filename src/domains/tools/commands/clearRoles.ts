@@ -1,5 +1,3 @@
-// src/domains/core/commands/purgeRoles.ts
-
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
@@ -12,6 +10,11 @@ export const data = new SlashCommandBuilder()
   .setName('clear-roles')
   .setDescription('Delete all roles except @everyone and safelist (admin only)')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
+
+export const meta = {
+  example: '/clear-roles',
+  output: '✅ Purged X roles. Kept: @everyone, admin, mod, founder.'
+};
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) {

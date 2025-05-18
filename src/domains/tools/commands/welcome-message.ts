@@ -1,44 +1,41 @@
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
-  TextChannel,
   PermissionFlagsBits,
+  ModalBuilder,
+  ActionRowBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  TextChannel,
+  ChannelSelectMenuBuilder,
+  ComponentType,
+  ChannelType,
 } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('welcome-message')
-  .setDescription('Send and pin a permanent welcome message to a channel')
-  .addChannelOption(opt =>
-    opt.setName('channel')
-      .setDescription('Where to post the welcome message')
-      .setRequired(true)
-  )
-  .addStringOption(opt =>
-    opt.setName('message')
-      .setDescription('The welcome message content (use \\n for line breaks)')
-      .setRequired(true)
-  )
+  .setDescription('Open a modal to submit a welcome message to a channel')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
+export const meta = {
+  example: '/welcome-message',
+  output: '✅ Modal opened. You can now type and preview your welcome message.',
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
-  const channel = interaction.options.getChannel('channel', true) as TextChannel;
-  const rawMessage = interaction.options.getString('message', true);
-  const parsedMessage = rawMessage.replace(/\\n/g, '\n'); // interpret \n as real newlines
+  const modal = new ModalBuilder()
+    .setCustomId('welcome_modal')
+    .setTitle('📨 Send a Welcome Message');
 
-  if (!channel?.isTextBased()) {
-    return interaction.reply({ content: '❌ Please select a valid text channel.', ephemeral: true });
-  }
+  const messageInput = new TextInputBuilder()
+    .setCustomId('welcome_text')
+    .setLabel('Welcome message (supports markdown)')
+    .setStyle(TextInputStyle.Paragraph)
+    .setPlaceholder('👋 Welcome to Bean DAO!\nRead the rules, introduce yourself, and pick your roles.')
+    .setRequired(true);
 
-  try {
-    const sent = await channel.send({ content: parsedMessage });
-    await sent.pin();
+  const row = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
+  modal.addComponents(row);
 
-    await interaction.reply({
-      content: `✅ Welcome message sent to <#${channel.id}> and pinned.`,
-      ephemeral: true,
-    });
-  } catch (err) {
-    console.error('Failed to send welcome message:', err);
-    await interaction.reply({ content: '❌ Failed to send the welcome message.', ephemeral: true });
-  }
+  await interaction.showModal(modal);
 }

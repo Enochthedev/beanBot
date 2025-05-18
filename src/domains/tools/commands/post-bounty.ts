@@ -19,7 +19,11 @@ export const data = new SlashCommandBuilder()
       .addAttachmentOption(opt =>
         opt.setName('file').setDescription('Upload a CSV file with bounties').setRequired(true))
   );
-
+  
+export const meta = {
+  example: '/post-bounty single title:"Fix UI bug" reward:"50 USDC" description:"Fix broken navbar on mobile"',
+  output: '💰 **Bounty Posted:**\n**Fix UI bug**\nReward: 50 USDC\nFix broken navbar on mobile'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const sub = interaction.options.getSubcommand();
 

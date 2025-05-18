@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
   .setDescription('Post or refresh the welcome message with dynamic role buttons')
   .addStringOption(opt =>
     opt.setName('text')
-      .setDescription('The welcome message to display')
+      .setDescription('The welcome message to display (supports line breaks via Shift+Enter)')
       .setRequired(true)
   )
   .addChannelOption(opt =>
@@ -22,7 +22,11 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
-
+  
+export const meta = {
+  example: '/update-welcome channel:#welcome text:"Welcome to Bean DAO! Choose your roles below 👇"',
+  output: '✅ Welcome message posted with role buttons.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const content = interaction.options.getString('text', true);
   const channel = interaction.options.getChannel('channel', true) as TextChannel;

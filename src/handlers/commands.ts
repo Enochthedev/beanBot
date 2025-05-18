@@ -1,7 +1,19 @@
-import { Client, Events, Interaction, ChatInputCommandInteraction } from 'discord.js';
+import {
+  Client,
+  Events,
+  Interaction,
+  ChatInputCommandInteraction,
+  GuildMemberRoleManager,
+} from 'discord.js';
 import { loadCommands } from '@interactions/registry/commands';
 import type { SlashCommand } from '@interactions/shared';
 import chalk from 'chalk';
+
+declare module 'discord.js' {
+  interface Client {
+    tempWelcomeMessages?: Record<string, string>;
+  }
+}
 
 export async function registerCommandHandler(client: Client) {
   const commands = await loadCommands();
@@ -37,7 +49,7 @@ export async function registerCommandHandler(client: Client) {
       return;
     }
 
-    // ✅ Button Interactions (toggle_role_X)
+    // ✅ Button Interactions: toggle_role_<roleId>
     if (interaction.isButton() && interaction.customId.startsWith('toggle_role_')) {
       const roleId = interaction.customId.replace('toggle_role_', '');
       const member = interaction.member;
@@ -54,11 +66,12 @@ export async function registerCommandHandler(client: Client) {
         : member.roles.cache.has(roleId);
 
       try {
+        const roleManager = member.roles as GuildMemberRoleManager;
         if (hasRole) {
-          await (member.roles as import('discord.js').GuildMemberRoleManager).remove(roleId);
+          await roleManager.remove(roleId);
           await interaction.reply({ content: `❌ Removed **${role.name}** role.`, ephemeral: true });
         } else {
-          await (member.roles as import("discord.js").GuildMemberRoleManager).add(roleId);
+          await roleManager.add(roleId);
           await interaction.reply({ content: `✅ You now have the **${role.name}** role!`, ephemeral: true });
         }
       } catch (err) {
@@ -68,18 +81,34 @@ export async function registerCommandHandler(client: Client) {
       return;
     }
 
-    // ✅ Autocomplete for welcome-message templates (optional)
+    // ✅ Autocomplete (for /welcome-message templates)
     if (interaction.isAutocomplete()) {
       const focused = interaction.options.getFocused();
       if (interaction.commandName === 'welcome-message') {
         try {
-          const { welcomeTemplates } = await import('@templates/welcome-templates'); // adjust if needed
+          const { welcomeTemplates } = await import('@templates/welcome-templates');
           const filtered = Object.keys(welcomeTemplates).filter(k => k.includes(focused));
           await interaction.respond(filtered.map(k => ({ name: k, value: k })));
         } catch {
           await interaction.respond([]);
         }
       }
+      return;
     }
+
+    // ✅ Modal Submission: capture welcome message content
+    if (interaction.isModalSubmit() && interaction.customId === 'welcome_modal') {
+      const message = interaction.fields.getTextInputValue('welcome_text');
+      client.tempWelcomeMessages ??= {};
+      client.tempWelcomeMessages[interaction.user.id] = message;
+
+      await interaction.reply({
+        content: '✅ Got your message! Now run `/welcome-channel` to select where to post it.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    // (optional) Channel select or modal-driven followups can be added here
   });
 }

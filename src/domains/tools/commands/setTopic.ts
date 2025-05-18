@@ -20,6 +20,11 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
+export const meta = {
+  example: '/set-topic channel:#general topic:"Welcome to the general discussion channel!"',
+  output: '✅ Topic for #general set to:\n> Welcome to the general discussion channel!'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   const channel = interaction.options.getChannel('channel');
   const topic = interaction.options.getString('topic');

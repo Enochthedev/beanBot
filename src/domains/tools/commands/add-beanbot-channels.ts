@@ -10,6 +10,10 @@ export const data = new SlashCommandBuilder()
   .setDescription('Add Bean Bot Hub channels to the server (Admin only)')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
+export const meta = {
+  example: '/add-beanbot-channels',
+  output: '✅ Bean Bot Hub channels created under `「 Bean Bot Hub 」`. Only "verified" users can view them.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guild = interaction.guild;
   if (!guild) return interaction.reply({ content: '❌ Must be run in a server.', ephemeral: true });

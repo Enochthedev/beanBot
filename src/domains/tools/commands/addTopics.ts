@@ -28,6 +28,10 @@ export const data = new SlashCommandBuilder()
   .setDescription('Auto-set all channel topics based on predefined suggestions')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
+export const meta = {
+  example: '/add-topics',
+  output: '✅ Set topics for X channels that matched the naming pattern.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) return interaction.reply({ content: '❌ Must be run in a server.', ephemeral: true });
 

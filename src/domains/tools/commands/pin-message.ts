@@ -15,7 +15,11 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages);
-
+  
+export const meta = {
+  example: '/pin-message message_link:"https://discord.com/channels/123/456/789"',
+  output: '📌 Pinned [this message](...) in #channel-name.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const messageLink = interaction.options.getString('message_link', true);
 

@@ -24,7 +24,11 @@ export const data = new SlashCommandBuilder()
       .addAttachmentOption(opt =>
         opt.setName('file').setDescription('Upload a CSV file with jobs').setRequired(true))
   );
-
+  
+export const meta = {
+  example: '/post-job single title:"React Developer" description:"Build UIs" link:"https://jobs.web3.com/react"',
+  output: '📝 **Job Posted:**\n**React Developer**\nBuild UIs\n🔗 https://jobs.web3.com/react'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const sub = interaction.options.getSubcommand();
 

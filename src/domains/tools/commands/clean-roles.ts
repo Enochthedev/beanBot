@@ -18,6 +18,11 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles);
+  
+export const meta = {
+  example: '/clean-roles role_name:"OG" delete:true',
+  output: '✅ Removed role **OG** from N members.\n🗑️ Deleted the role from server.'
+};
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guild = interaction.guild;

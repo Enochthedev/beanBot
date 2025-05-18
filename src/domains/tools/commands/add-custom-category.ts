@@ -31,6 +31,11 @@ export const data = new SlashCommandBuilder()
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
+export const meta = {
+  example: '/add-custom-category category:"Alpha Hub" allow_roles:"verified,team" channels:"alpha-news,drops,chat"',
+  output: '✅ Created **Alpha Hub** with 3 channels. Only specified roles can view it.'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guild = interaction.guild;
   if (!guild) {

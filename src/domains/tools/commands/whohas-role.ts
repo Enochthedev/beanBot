@@ -14,7 +14,10 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles);
-
+export const meta = {
+  example: '/whohas-role role:@Verified',
+  output: '✅ **X** users have the role **Verified**:\n• @user1\n• @user2\n...'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   const role = interaction.options.getRole('role', true);
 

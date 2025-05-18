@@ -16,6 +16,11 @@ export const data = new SlashCommandBuilder()
         opt.setName('bounty_ids').setDescription('Comma-separated bounty IDs').setRequired(true))
   );
 
+export const meta = {
+  example: '/join-bounty single bounty_id:"alpha-234"',
+  output: '✅ You have joined bounty `alpha-234`. Good luck!'
+};
+
 export async function execute(interaction: ChatInputCommandInteraction) {
   const sub = interaction.options.getSubcommand();
 

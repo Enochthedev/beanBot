@@ -1,4 +1,3 @@
-// tools/create-role.ts
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
@@ -71,6 +70,11 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
+
+export const meta = {
+  example: '/create-role role:"editor" color:"purple" mentionable:true preset_permissions:"helper"',
+  output: '✅ Created role **editor** with preset **helper** and color `#a020f0`.'
+};
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) {
     return interaction.reply({ content: '❌ Must be used in a server.', ephemeral: true });

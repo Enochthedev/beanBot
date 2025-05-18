@@ -5,6 +5,7 @@ export interface SlashCommand {
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
   meta?: {
     requiredRole?: string;
+    example?: string;
     [key: string]: any;
   };
 }
