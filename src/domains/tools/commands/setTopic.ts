@@ -12,13 +12,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if user is admin OR has "team" or "OG" role
   const member = await interaction.guild?.members.fetch(interaction.user.id);
   const hasRole = member?.roles.cache.some(
-    r => ['team', 'og'].includes(r.name.toLowerCase())
+    r => ['team'].includes(r.name.toLowerCase())
   );
   if (
     !interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels) &&
     !hasRole
   ) {
-    return interaction.reply({ content: '❌ Only Admins, Team, or OG can use this.', ephemeral: true });
+    return interaction.reply({ content: '❌ Only Admins or Team can use this.', ephemeral: true });
   }
 
   if (!channel || channel.type !== ChannelType.GuildText) {
