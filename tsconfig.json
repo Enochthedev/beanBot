@@ -16,7 +16,24 @@
       "@domains/*": ["src/domains/*"],
       "@handlers/*": ["src/handlers/*"],
       "@interactions/*": ["src/interactions/*"],
-      "@middlewares/*": ["src/middlewares/*"]
+      "@middlewares/*": ["src/middlewares/*"],
+      "@twitter/*": ["src/modules/twitter/*"],
+      "@degen/*": ["src/modules/degen/*"],
+      "@analytics/*": ["src/modules/analytics/*"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@automation/*": ["src/modules/automation/*"],
+      "@callSystem/*": ["src/modules/callSystem/*"],
+      "@dev/*": ["src/modules/dev/*"],
+      "@dmEngine/*": ["src/modules/dmEngine/*"],
+      "@listings/*": ["src/modules/listing/*"],
+      "@notifications/*": ["src/modules/notifications/*"],
+      "@payment/*": ["src/modules/payment/*"],
+      "@settings/*": ["src/modules/settings/*"],
+      "@training/*": ["src/modules/training/*"],
+      "@trends/*": ["src/modules/trends/*"],
+      "@libs/*": ["src/libs/*"],
+      "@templates/*": ["src/domains/tools/templates/*"],
+
     }
   },
   "include": ["src"]
