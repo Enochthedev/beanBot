@@ -1,3 +1,4 @@
+// tools/add-custom-category.ts
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
@@ -14,14 +15,14 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   )
   .addStringOption(opt =>
-    opt.setName('channels')
-      .setDescription('Comma-separated list of channels (e.g. alpha-news, drops, chat)')
-      .setRequired(false)
-  )
-  .addStringOption(opt =>
     opt.setName('allow_roles')
       .setDescription('Comma-separated list of roles that should see the category')
       .setRequired(true)
+  )
+  .addStringOption(opt =>
+    opt.setName('channels')
+      .setDescription('Comma-separated list of channels (e.g. alpha-news, drops, chat)')
+      .setRequired(false)
   )
   .addStringOption(opt =>
     opt.setName('deny_roles')

@@ -1,3 +1,4 @@
+// tools/create-role.ts
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
@@ -5,7 +6,6 @@ import {
 } from 'discord.js';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
-
 extend([namesPlugin]);
 
 const PERMISSION_PRESETS: Record<string, bigint[]> = {
@@ -71,7 +71,6 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
-
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild) {
     return interaction.reply({ content: '❌ Must be used in a server.', ephemeral: true });
