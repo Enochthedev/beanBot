@@ -1,8 +1,10 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { randomBytes } from 'crypto';
+import { cache } from '@/lib/cache';
 
 export const data = new SlashCommandBuilder()
   .setName('connect-wallet')
-  .setDescription('[Demo] Simulate a wallet connection')
+  .setDescription('Link your wallet by signing a challenge')
   .addStringOption(opt =>
     opt.setName('address')
       .setDescription('Your wallet address')
@@ -11,8 +13,10 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const address = interaction.options.getString('address', true);
+  const nonce = 'beanbot-' + randomBytes(8).toString('hex');
+  await cache.set(`wallet_nonce:${interaction.user.id}`, { address, nonce }, { ttl: 600 });
   await interaction.reply({
-    content: `🔗 Wallet \`${address.slice(0, 6)}...${address.slice(-4)}\` connected (demo only).`,
+    content: `Sign the text \`${nonce}\` with **${address}** and run /confirm-wallet signature:<signature>`,
     ephemeral: true,
   });
 }
