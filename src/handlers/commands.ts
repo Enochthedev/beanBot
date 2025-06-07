@@ -8,6 +8,7 @@ import {
 import { loadCommands } from '@interactions/registry/commands';
 import type { SlashCommand } from '@interactions/shared';
 import chalk from 'chalk';
+import { cache } from '@/lib/cache';
 
 declare module 'discord.js' {
   interface Client {
@@ -35,6 +36,13 @@ export async function registerCommandHandler(client: Client) {
       }
 
       console.log(chalk.green(`📥 /${interaction.commandName} triggered by ${interaction.user.tag}`));
+
+      const allowedChannel = await cache.get<string>(`cmd:channel:${interaction.commandName}`);
+      if (allowedChannel && allowedChannel !== interaction.channelId) {
+        await interaction.reply({ content: `❌ Use this command in <#${allowedChannel}>`, ephemeral: true });
+        return;
+      }
+
       try {
         await command.execute(interaction as ChatInputCommandInteraction);
         console.log(chalk.green(`✅ Successfully executed /${interaction.commandName}`));
