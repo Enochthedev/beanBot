@@ -32,6 +32,7 @@
       "@settings/*": ["src/modules/settings/*"],
       "@training/*": ["src/modules/training/*"],
       "@trends/*": ["src/modules/trends/*"],
+      "@modules/*": ["src/modules/*"],
       "@libs/*": ["src/libs/*"],
       "@templates/*": ["src/domains/tools/templates/*"],
 
