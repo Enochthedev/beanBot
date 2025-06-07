@@ -142,4 +142,70 @@ enum MintStatus {
   FAILED
   CANCELLED
   INSUFFICIENT_FUNDS
+=======
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TwitterAccount {
+  id              String   @id @default(cuid())
+  twitterUserId   String   @unique
+  accessToken     String
+  refreshToken    String
+  expiresAt       Int
+  type            String   // "read" or "write"
+  createdAt       DateTime @default(now())
+
+  links           TwitterLink[]
+}
+
+model TwitterLink {
+  id              String   @id @default(cuid())
+  discordUserId   String
+  guildId         String
+  twitterUserId   String
+  type            String   // "read"
+  createdAt       DateTime @default(now())
+
+  twitterAccount  TwitterAccount @relation(fields: [twitterUserId], references: [twitterUserId])
+  @@unique([discordUserId, guildId])
+}
+
+model SnipeLog {
+  id          String   @id @default(cuid())
+  userId      String
+  tokenAddress String
+  amount      Float
+  txHash      String
+  status      String   // "success" | "fail"
+  executedAt  DateTime
+}
+
+model TokenCall {
+  id            String   @id @default(cuid())
+  tokenAddress  String
+  tokenSymbol   String?
+  discordUserId String
+  guildId       String
+  channelId     String
+  fdv           Float?
+  volume        Float?
+  ath           Float?
+  currentPrice  Float?
+  ageMinutes    Int?
+  lp            Float?
+  status        String   // "called" | "deleted" | "executed"
+  createdAt     DateTime @default(now())
 }
