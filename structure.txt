@@ -1,0 +1,99 @@
+.
+├── package-lock.json
+├── package.json
+├── prisma
+│   └── schema.prisma
+├── README.md
+├── src
+│   ├── ai
+│   ├── bot
+│   │   ├── bot.ts
+│   │   ├── client.ts
+│   │   └── deploy.ts
+│   ├── config
+│   │   └── index.ts
+│   ├── domains
+│   │   ├── communication
+│   │   │   ├── commands
+│   │   │   │   ├── announce.ts
+│   │   │   │   ├── dm.ts
+│   │   │   │   └── say.ts
+│   │   │   └── messages
+│   │   ├── connections
+│   │   │   └── commands
+│   │   │       └── connectTwitter.ts
+│   │   ├── core
+│   │   │   ├── commands
+│   │   │   │   ├── ping.ts
+│   │   │   │   └── set-channel-visibility.ts
+│   │   │   └── listeners
+│   │   │       └── gm-listener.ts
+│   │   ├── mods
+│   │   │   └── commands
+│   │   │       ├── lockdown-channel.ts
+│   │   │       └── verify-user.ts
+│   │   └── tools
+│   │       └── commands
+│   │           ├──  clean-roles.ts
+│   │           ├── add-beanbot-channels.ts
+│   │           ├── add-custom-category.ts
+│   │           ├── addTopics.ts
+│   │           ├── buildWeb3Server.ts
+│   │           ├── clearChannels.ts
+│   │           ├── clearRoles.ts
+│   │           ├── edit-channel.ts
+│   │           ├── pin-message.ts
+│   │           ├── purge-messages.ts
+│   │           ├── setTopic.ts
+│   │           ├── setupRoles.ts
+│   │           └── whohas-role.ts
+│   ├── handlers
+│   │   ├── commands.ts
+│   │   └── messages
+│   │       └── register-message-handlers.ts
+│   ├── interactions
+│   │   ├── registry
+│   │   │   └── commands.ts
+│   │   └── shared.ts
+│   ├── lib
+│   │   ├── cache.ts
+│   │   ├── lua
+│   │   │   └── lockSniper.lua
+│   │   └── redis.ts
+│   ├── middlewares
+│   ├── modules
+│   │   ├── analytics
+│   │   ├── auth
+│   │   ├── automation
+│   │   ├── callSystem
+│   │   ├── degen
+│   │   ├── dev
+│   │   ├── dmEngine
+│   │   ├── listing
+│   │   ├── nft_mint_bot
+│   │   │   ├── Cargo.toml
+│   │   │   └── src
+│   │   │       ├── config.rs
+│   │   │       └── main.rs
+│   │   ├── notifications
+│   │   ├── payment
+│   │   ├── settings
+│   │   ├── trading
+│   │   ├── trends
+│   │   └── twitter
+│   │       ├── auth.ts
+│   │       ├── engage
+│   │       ├── engine.ts
+│   │       ├── kol
+│   │       ├── types.ts
+│   │       └── utils.ts
+│   └── utils
+│       └── paths.ts
+├── structure.txt
+├── tsconfig.json
+└── turbo.json
+
+46 directories, 48 files
+
+
+tree -I "node_modules|target|.git" -L 5 > structure.txt && cat structure.txt
