@@ -1,6 +1,7 @@
 use dotenv::dotenv;
 use std::env;
 
+#[derive(Debug)]
 pub struct Config {
     pub rpc_url: String,
     pub private_key: String,
