@@ -4,7 +4,7 @@ import { pathToFileURL } from 'url';
 import chalk from 'chalk';
 import type { Client, Message } from 'discord.js';
 
-const DOMAINS: string[] = ["core","tools","communication","web3","mods"];
+const DOMAINS: string[] = ["core","tools","communication","web3","mods","mint"];
 
 type MessageListener = (message: Message) => void | Promise<void>;
 
