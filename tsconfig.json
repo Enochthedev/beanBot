@@ -7,6 +7,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+    "types": ["node"],
+    "lib": ["es2021"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -31,8 +33,10 @@
       "@settings/*": ["src/modules/settings/*"],
       "@training/*": ["src/modules/training/*"],
       "@trends/*": ["src/modules/trends/*"],
+      "@modules/*": ["src/modules/*"],
       "@libs/*": ["src/libs/*"],
       "@templates/*": ["src/domains/tools/templates/*"],
+      "@wallet/*": ["src/modules/wallet/*"]
 
     }
   },
