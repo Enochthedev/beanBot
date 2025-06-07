@@ -142,7 +142,7 @@ enum MintStatus {
   FAILED
   CANCELLED
   INSUFFICIENT_FUNDS
-=======
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -208,4 +208,5 @@ model TokenCall {
   lp            Float?
   status        String   // "called" | "deleted" | "executed"
   createdAt     DateTime @default(now())
+
 }
