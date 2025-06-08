@@ -11,9 +11,12 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const to = interaction.options.getString('to', true);
+  // The compiled Rust binary lives under src/modules after building.
+  // Resolve the path relative to this command's directory so it works in both
+  // ts-node and compiled environments.
   const bin = path.resolve(
     __dirname,
-    '../../../../src/modules/nft_mint_bot/target/release/nft_mint_bot'
+    '../../../modules/nft_mint_bot/target/release/nft_mint_bot'
   );
 
   const child = spawn(bin, [to]);
