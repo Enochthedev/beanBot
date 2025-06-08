@@ -13,7 +13,7 @@ pnpm run dev
 ## Prerequisites
 Running the full test suite requires several runtimes:
 
-- **Node.js** with either `pnpm` or `npm` available in your `PATH`
+- **Node.js** with `pnpm` available in your `PATH`
 - **Rust** (`cargo` command)
 - **Python 3** with `pytest`
 
@@ -107,7 +107,7 @@ TypeScript, Rust and Python tests.
 If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 
