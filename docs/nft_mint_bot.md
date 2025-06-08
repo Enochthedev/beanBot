@@ -24,6 +24,9 @@ The bot requires the following variables (see `.env.example`):
 - `RPC_URL` – WebSocket JSON-RPC endpoint used by the Rust bot (e.g. `wss://...`)
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+- `USE_FLASHBOTS` – when set to `true`, the bot submits transactions through the
+  Flashbots relay at `https://relay.flashbots.net` instead of directly to
+  `RPC_URL`
 
 ## Adding Logic
 Open `src/modules/nft_mint_bot/src/main.rs` and implement your minting logic.
