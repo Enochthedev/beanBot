@@ -41,7 +41,7 @@ to perform a mint.
 
 See `docs/nft_mint_bot.md` for a deeper explanation of the mint bot and how to
 extend it. Environment variables can be configured using the included
-`.env.example` file.
+`.env.example` file. For deployment steps consult `docs/deployment.md`.
 
 ## Command Restrictions & Info
 Commands can be limited to specific channels using `/restrict-command`. Admins
