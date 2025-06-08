@@ -78,3 +78,7 @@ The bot exposes several Discord slash commands:
 - `/mint-status` - View your last mint status
 - `/cancel-mint` - Cancel a queued request
 - `/settings` - View bot settings
+
+## Monitoring
+When `ENABLE_PERFORMANCE_MONITORING` is `true`, a Prometheus metrics endpoint is
+exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
