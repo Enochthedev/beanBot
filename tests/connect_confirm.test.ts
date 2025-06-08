@@ -22,6 +22,7 @@ describe('wallet connect flow', () => {
     const testWallet = ethers.Wallet.createRandom();
     const address = testWallet.address;
     const nonce = 'abc123';
+    process.env.SIGNATURE_MESSAGE = process.env.SIGNATURE_MESSAGE || 'Authorize mint bot access';
     const userRecord = { id: 'uid1', discordId: 'user1', discordTag: 'user#1234' };
 
     const originalUser = prisma.user;
