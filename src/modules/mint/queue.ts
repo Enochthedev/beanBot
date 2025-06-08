@@ -32,10 +32,17 @@ export class MintQueue extends EventEmitter {
   }
 
   add(request: MintRequest) {
+    if (this.length >= config.maxQueueSize) {
+      if (this.listenerCount('error') > 0) {
+        this.emit('error', new Error('Mint queue limit exceeded'));
+      }
+      return false;
+    }
     const queue = request.priority === 'premium' ? this.premiumQueue : this.basicQueue;
     queue.push({ ...request, attempts: request.attempts ?? 0 });
     this.emit('queued', request);
     if (!this.timer) this.start();
+    return true;
   }
 
   private start() {

@@ -82,3 +82,7 @@ The bot exposes several Discord slash commands:
 ## Monitoring
 When `ENABLE_PERFORMANCE_MONITORING` is `true`, a Prometheus metrics endpoint is
 exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
+
+## Queue Limits
+The mint queue will hold at most `MAX_QUEUE_SIZE` requests (defaults to `1000`).
+Additional requests are dropped once the limit is exceeded.
