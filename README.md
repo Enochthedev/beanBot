@@ -9,6 +9,13 @@ pnpm install
 pnpm run dev
 ```
 
+## Prerequisites
+Running the full test suite requires several runtimes:
+
+- **Node.js** with either `pnpm` or `npm` available in your `PATH`
+- **Rust** (`cargo` command)
+- **Python 3** with `pytest`
+
 ## Add a new command
 Add a file to `src/domains/{domain}/commands/`, then run:
 
@@ -68,10 +75,12 @@ WEBSOCKET_RPC_URL=wss://mainnet.infura.io/ws/v3/your_key
 The bot will automatically switch providers on failure and stream new blocks when a WebSocket URL is provided.
 
 Additional options:
+
 - `GAS_MULTIPLIER` adjusts gas fees for replacement transactions (default `1.2`). Increase this value if replacement transactions are frequently underpriced.
 - `MINT_MAX_RETRIES` sets how many times the bot will attempt a failed mint before giving up (default `2`).
 - `USE_FLASHBOTS` routes transactions through Flashbots for private bundle submission. Enable when you want MEV protection or to bypass the public mempool.
 - `DETECTION_SCORE_THRESHOLD` defines the minimum score required before a detection opportunity is emitted (default `1`).
+
 
 ## Available Commands
 The bot exposes several Discord slash commands:
@@ -92,9 +101,10 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
-The `scripts/run-tests.sh` script automatically installs packages with `npm ci`
-if `node_modules` is missing, then executes all TypeScript, Rust and Python
-tests:
+
+The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
+`node_modules` is missing, then execute the TypeScript, Rust and Python tests.
+If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash
 npm run test
@@ -102,8 +112,9 @@ npm run test
 
 
 ## Queue Limits
-The mint queue will hold at most `MAX_QUEUE_SIZE` requests (defaults to `1000`).
-Additional requests are dropped once the limit is exceeded.
+The mint queue will hold at most `MAX_QUEUE_SIZE` requests per priority
+(defaults to `1000`). When a queue is full, calls to `add()` return `false`
+and emit an `error` event.
 Detection opportunities are emitted when a project's score meets `DETECTION_SCORE_THRESHOLD` (default `1`).
 
 

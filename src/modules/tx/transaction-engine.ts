@@ -15,7 +15,9 @@ export async function sendWithReplacement(
   args: unknown[],
   opts: SendOptions = {}
 ): Promise<TransactionReceipt> {
-  const provider: JsonRpcProvider = network.getProvider();
+  const provider: JsonRpcProvider = opts.privateTx
+    ? getFlashbotsProvider()
+    : network.getProvider();
   const feeData = await provider.getFeeData();
   let maxFeePerGas = feeData.maxFeePerGas ?? 0n;
   let maxPriorityFeePerGas = feeData.maxPriorityFeePerGas ?? 0n;
@@ -24,7 +26,8 @@ export async function sendWithReplacement(
     maxPriorityFeePerGas = (maxPriorityFeePerGas * BigInt(Math.floor(opts.gasMultiplier * 100))) / 100n;
   }
 
-  const txResponse = await (contract.connect(wallet) as any)[functionName](...args, {
+  const signer = wallet.connect(provider);
+  const txResponse = await (contract.connect(signer) as any)[functionName](...args, {
     maxFeePerGas,
     maxPriorityFeePerGas
   });
@@ -35,7 +38,7 @@ export async function sendWithReplacement(
   } catch {
     // replacement logic: bump gas and resend once
     maxFeePerGas = maxFeePerGas + maxPriorityFeePerGas;
-    const replacement = await (contract.connect(wallet) as any)[functionName](...args, {
+    const replacement = await (contract.connect(signer) as any)[functionName](...args, {
       maxFeePerGas,
       maxPriorityFeePerGas
     });
