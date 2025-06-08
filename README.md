@@ -6,6 +6,7 @@ A CLI-generated Discord bot in TypeScript with domain-based modular structure.
 
 ```bash
 pnpm install
+pnpm exec prisma generate
 pnpm run dev
 ```
 
@@ -101,7 +102,8 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 The test suite relies on dev dependencies such as `ts-node`.
 
 The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
-`node_modules` is missing, then execute the TypeScript, Rust and Python tests.
+`node_modules` is missing, generate the Prisma client, and then execute the
+TypeScript, Rust and Python tests.
 If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash
