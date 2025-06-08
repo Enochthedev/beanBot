@@ -70,7 +70,9 @@ The bot will automatically switch providers on failure and stream new blocks whe
 Additional options:
 - `GAS_MULTIPLIER` adjusts gas fees for replacement transactions (default `1.2`).
 - `MINT_MAX_RETRIES` controls how many times a failed mint is retried (default `2`).
-- Set `USE_FLASHBOTS=true` to route transactions through Flashbots.
+- Set `USE_FLASHBOTS=true` to route transactions through Flashbots. When this
+  variable is enabled the mint queue will send transactions privately via the
+  Flashbots RPC.
 
 ## Available Commands
 The bot exposes several Discord slash commands:
