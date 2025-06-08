@@ -75,13 +75,10 @@ WEBSOCKET_RPC_URL=wss://mainnet.infura.io/ws/v3/your_key
 The bot will automatically switch providers on failure and stream new blocks when a WebSocket URL is provided.
 
 Additional options:
-
 - `GAS_MULTIPLIER` adjusts gas fees for replacement transactions (default `1.2`). Increase this value if replacement transactions are frequently underpriced.
 - `MINT_MAX_RETRIES` sets how many times the bot will attempt a failed mint before giving up (default `2`).
 - `USE_FLASHBOTS` routes transactions through Flashbots for private bundle submission. Enable when you want MEV protection or to bypass the public mempool.
 - `DETECTION_SCORE_THRESHOLD` defines the minimum score required before a detection opportunity is emitted (default `1`).
-
-
 ## Available Commands
 The bot exposes several Discord slash commands:
 
