@@ -1,10 +1,17 @@
 .
+├── Dockerfile
+├── README.md
+├── docker-compose.yml
+├── docs
+│   ├── deployment.md
+│   └── nft_mint_bot.md
 ├── package.json
+├── pnpm-lock.yaml
 ├── prisma
 │   └── schema.prisma
-├── README.md
+├── scripts
+│   └── run-tests.sh
 ├── src
-│   ├── ai
 │   ├── bot
 │   │   ├── bot.ts
 │   │   ├── client.ts
@@ -13,39 +20,75 @@
 │   │   └── index.ts
 │   ├── domains
 │   │   ├── communication
-│   │   │   ├── commands
-│   │   │   │   ├── announce.ts
-│   │   │   │   ├── dm.ts
-│   │   │   │   └── say.ts
-│   │   │   └── messages
+│   │   │   └── commands
+│   │   │       ├── announce.ts
+│   │   │       ├── dm.ts
+│   │   │       └── say.ts
 │   │   ├── connections
 │   │   │   └── commands
 │   │   │       └── connectTwitter.ts
 │   │   ├── core
 │   │   │   ├── commands
+│   │   │   │   ├── info.ts
 │   │   │   │   ├── ping.ts
-│   │   │   │   └── set-channel-visibility.ts
+│   │   │   │   ├── restrict-command.ts
+│   │   │   │   ├── set-channel-visibility.ts
+│   │   │   │   ├── spin-up-instance.ts
+│   │   │   │   └── welcome-channel.ts
 │   │   │   └── listeners
-│   │   │       └── gm-listener.ts
+│   │   │       ├── chatter-listener.ts
+│   │   │       ├── gm-listener.ts
+│   │   │       └── welcome-listener.ts
+│   │   ├── mint
+│   │   │   └── commands
+│   │   │       ├── cancel-mint.ts
+│   │   │       ├── index.ts
+│   │   │       ├── mint-status.ts
+│   │   │       ├── mint.ts
+│   │   │       ├── projects.ts
+│   │   │       ├── settings.ts
+│   │   │       └── subscription-info.ts
 │   │   ├── mods
 │   │   │   └── commands
+│   │   │       ├── admin-info.ts
+│   │   │       ├── admin-update.ts
+│   │   │       ├── ban-user.ts
 │   │   │       ├── lockdown-channel.ts
+│   │   │       ├── report.ts
+│   │   │       ├── set-modlog.ts
 │   │   │       └── verify-user.ts
-│   │   └── tools
+│   │   ├── tools
+│   │   │   ├── commands
+│   │   │   │   ├── add-beanbot-channels.ts
+│   │   │   │   ├── add-custom-category.ts
+│   │   │   │   ├── addTopics.ts
+│   │   │   │   ├── buildWeb3Server.ts
+│   │   │   │   ├── clean-roles.ts
+│   │   │   │   ├── clearChannels.ts
+│   │   │   │   ├── clearRoles.ts
+│   │   │   │   ├── create-role.ts
+│   │   │   │   ├── edit-channel.ts
+│   │   │   │   ├── join-bounty.ts
+│   │   │   │   ├── manage-selfrole.ts
+│   │   │   │   ├── pin-message.ts
+│   │   │   │   ├── post-bounty.ts
+│   │   │   │   ├── post-job.ts
+│   │   │   │   ├── purge-messages.ts
+│   │   │   │   ├── raffle.ts
+│   │   │   │   ├── setTopic.ts
+│   │   │   │   ├── update-welcome.ts
+│   │   │   │   ├── welcome-message.ts
+│   │   │   │   └── whohas-role.ts
+│   │   │   └── templates
+│   │   │       └── welcome-templates.ts
+│   │   └── web3
 │   │       └── commands
-│   │           ├──  clean-roles.ts
-│   │           ├── add-beanbot-channels.ts
-│   │           ├── add-custom-category.ts
-│   │           ├── addTopics.ts
-│   │           ├── buildWeb3Server.ts
-│   │           ├── clearChannels.ts
-│   │           ├── clearRoles.ts
-│   │           ├── edit-channel.ts
-│   │           ├── pin-message.ts
-│   │           ├── purge-messages.ts
-│   │           ├── setTopic.ts
-│   │           ├── setupRoles.ts
-│   │           └── whohas-role.ts
+│   │           ├── coin-snipe.ts
+│   │           ├── confirm-wallet.ts
+│   │           ├── connect-wallet.ts
+│   │           ├── get-balance.ts
+│   │           ├── mint-fast.ts
+│   │           └── wallet-info.ts
 │   ├── handlers
 │   │   ├── commands.ts
 │   │   └── messages
@@ -59,40 +102,60 @@
 │   │   ├── lua
 │   │   │   └── lockSniper.lua
 │   │   └── redis.ts
-│   ├── middlewares
+│   ├── libs
+│   │   ├── network.ts
+│   │   └── prisma.ts
 │   ├── modules
-│   │   ├── analytics
-│   │   ├── auth
-│   │   ├── automation
-│   │   ├── callSystem
-│   │   ├── degen
-│   │   ├── dev
-│   │   ├── dmEngine
-│   │   ├── listing
+│   │   ├── coin_sniper
+│   │   │   ├── requirements.txt
+│   │   │   ├── sniper.py
+│   │   │   └── tests
+│   │   │       └── test_sniper.py
+│   │   ├── detection
+│   │   │   ├── contract-analyzer.ts
+│   │   │   ├── index.ts
+│   │   │   ├── scoring.ts
+│   │   │   └── watcher.ts
+│   │   ├── metrics.ts
+│   │   ├── mint
+│   │   │   ├── access.ts
+│   │   │   ├── index.ts
+│   │   │   ├── queue.ts
+│   │   │   └── validation.ts
+│   │   ├── network
+│   │   │   ├── block-streamer.ts
+│   │   │   └── index.ts
 │   │   ├── nft_mint_bot
+│   │   │   ├── Cargo.lock
 │   │   │   ├── Cargo.toml
-│   │   │   └── src
-│   │   │       ├── config.rs
-│   │   │       └── main.rs
-│   │   ├── notifications
-│   │   ├── payment
-│   │   ├── settings
-│   │   ├── trading
-│   │   ├── trends
-│   │   └── twitter
-│   │       ├── auth.ts
-│   │       ├── engage
-│   │       ├── engine.ts
-│   │       ├── kol
-│   │       ├── types.ts
-│   │       └── utils.ts
+│   │   │   ├── src
+│   │   │   │   ├── config.rs
+│   │   │   │   ├── lib.rs
+│   │   │   │   └── main.rs
+│   │   │   └── tests
+│   │   │       └── config.rs
+│   │   ├── twitter
+│   │   │   ├── auth.ts
+│   │   │   ├── engine.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils.ts
+│   │   ├── tx
+│   │   │   ├── gas-engine.ts
+│   │   │   ├── index.ts
+│   │   │   └── transaction-engine.ts
+│   │   └── wallet
+│   │       ├── index.ts
+│   │       └── session.ts
 │   └── utils
 │       └── paths.ts
 ├── structure.txt
+├── tests
+│   ├── connect_confirm.test.ts
+│   ├── getUserWallet.test.ts
+│   ├── mintFast.test.ts
+│   ├── sniper.test.ts
+│   └── wallet.test.ts
 ├── tsconfig.json
 └── turbo.json
 
-46 directories, 48 files
-
-
-tree -I "node_modules|target|.git" -L 5 > structure.txt && cat structure.txt
+45 directories, 114 files
