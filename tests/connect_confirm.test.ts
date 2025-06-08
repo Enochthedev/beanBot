@@ -7,6 +7,8 @@ import { execute as connect } from '../src/domains/web3/commands/connect-wallet'
 import { execute as confirm } from '../src/domains/web3/commands/confirm-wallet';
 import { ethers } from 'ethers';
 
+process.env.SIGNATURE_MESSAGE = 'Authorize mint bot access';
+
 function mockInteraction(opts: any) {
   return {
     options: {
