@@ -6,6 +6,7 @@ A CLI-generated Discord bot in TypeScript with domain-based modular structure.
 
 ```bash
 pnpm install
+pnpm exec prisma generate
 pnpm run dev
 ```
 
@@ -41,7 +42,7 @@ to perform a mint.
 
 See `docs/nft_mint_bot.md` for a deeper explanation of the mint bot and how to
 extend it. Environment variables can be configured using the included
-`.env.example` file.
+`.env.example` file. For deployment steps consult `docs/deployment.md`.
 
 ## Command Restrictions & Info
 Commands can be limited to specific channels using `/restrict-command`. Admins
@@ -100,8 +101,9 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
 
-The `scripts/run-tests.sh` script will run `pnpm install` when
-`node_modules` is missing, then execute the TypeScript, Rust and Python tests.
+The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
+`node_modules` is missing, generate the Prisma client, and then execute the
+TypeScript, Rust and Python tests.
 If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash

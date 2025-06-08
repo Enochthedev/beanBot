@@ -21,7 +21,7 @@ command.
 
 ## Environment
 The bot requires the following variables (see `.env.example`):
-- `RPC_URL` – JSON-RPC endpoint
+- `RPC_URL` – WebSocket JSON-RPC endpoint used by the Rust bot (e.g. `wss://...`)
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
 

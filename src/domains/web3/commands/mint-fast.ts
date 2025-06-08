@@ -11,7 +11,10 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const to = interaction.options.getString('to', true);
-  const bin = path.resolve(__dirname, '../../../../modules/nft_mint_bot/target/release/nft_mint_bot');
+  const bin = path.resolve(
+    __dirname,
+    '../../../../src/modules/nft_mint_bot/target/release/nft_mint_bot'
+  );
 
   const child = spawn(bin, [to]);
   let output = '';
