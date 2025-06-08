@@ -1,13 +1,24 @@
 mod config;
+mod gas;
+
 use anyhow::Result;
 use config::Config;
 use ethers::prelude::*;
+use gas::estimate_gas_limit;
 use std::env;
 use std::sync::Arc;
+
 fn apply_multiplier(value: U256, multiplier: f64) -> U256 {
     let scaled = (value.as_u128() as f64 * multiplier) as u128;
     U256::from(scaled)
 }
+
+abigen!(
+    MintContract,
+    r#"[
+        function mint(address to) external
+    ]"#
+);
 
 async fn mint_with_provider<P>(
     provider: Provider<P>,
@@ -19,13 +30,20 @@ where
     P: JsonRpcClient + 'static,
 {
     let client = Arc::new(SignerMiddleware::new(provider, wallet));
-
-    let (max_fee, prio_fee) = client.estimate_eip1559_fees(None).await?;
-
     let contract_addr: Address = cfg.contract_address.parse()?;
     let mut call = MintContract::new(contract_addr, client.clone()).mint(address);
 
+    // Apply gas limit from config or estimate dynamically
+    let gas_limit = if let Some(limit) = cfg.gas_limit {
+        U256::from(limit)
+    } else {
+        estimate_gas_limit(call.clone()).await?
+    };
+    call = call.gas(gas_limit);
+
+    // Apply EIP-1559 gas pricing with multiplier
     if let Some(tx) = call.tx.as_eip1559_mut() {
+        let (max_fee, prio_fee) = client.estimate_eip1559_fees(None).await?;
         tx.max_fee_per_gas = Some(apply_multiplier(max_fee, cfg.gas_multiplier));
         tx.max_priority_fee_per_gas = Some(apply_multiplier(prio_fee, cfg.gas_multiplier));
     }
@@ -38,16 +56,6 @@ where
 
     Ok(())
 }
-
-abigen!(
-    MintContract,
-    r#"[
-        function mint(address to) external
-    ]"#
-);
-
-/// Simple CLI entry for the mint bot.
-/// Pass the recipient address as the first argument.
 
 #[tokio::main]
 async fn main() -> Result<()> {
