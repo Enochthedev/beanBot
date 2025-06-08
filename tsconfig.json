@@ -8,6 +8,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+    "types": ["node"],
+    "lib": ["es2021"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -35,6 +37,7 @@
       "@modules/*": ["src/modules/*"],
       "@libs/*": ["src/libs/*"],
       "@templates/*": ["src/domains/tools/templates/*"],
+      "@wallet/*": ["src/modules/wallet/*"]
 
     }
   },

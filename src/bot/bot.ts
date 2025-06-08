@@ -3,6 +3,7 @@ import { config } from '@config/index';
 import { registerCommandHandler } from '@handlers/commands';
 import { registerMessageHandlers } from '@handlers/messages/register-message-handlers';
 import { deployCommands } from '@bot/deploy';
+import { blockStreamer } from '@modules/network';
 import chalk from 'chalk';
 
 console.log(chalk.cyanBright('🚀 Starting Discord bot...'));
@@ -13,6 +14,8 @@ client.once('ready', async () => {
   await registerCommandHandler(client);
   await registerMessageHandlers(client);
   await deployCommands();
+
+  blockStreamer.start();
 
   console.log(
     chalk.greenBright(
