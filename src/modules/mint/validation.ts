@@ -1,5 +1,5 @@
 import { prisma } from '@libs/prisma';
-import { MintStatus } from '@prisma/client';
+import { network } from '@modules/network';
 import { ethers } from 'ethers';
 
 export interface ValidationResult {
@@ -13,10 +13,13 @@ export async function validateMintEligibility(walletAddress: string, projectId: 
   if (project.mintStartTime && project.mintStartTime > new Date()) return { ok: false, message: 'Mint not started' };
   if (project.mintEndTime && project.mintEndTime < new Date()) return { ok: false, message: 'Mint ended' };
 
-  const provider = new ethers.JsonRpcProvider(process.env.PRIMARY_RPC_URL);
-  const balance = await provider.getBalance(walletAddress);
-  const price = BigInt(project.mintPrice) * BigInt(mintAmount);
-  if (balance < price) return { ok: false, message: 'Insufficient balance' };
+  try {
+    const balance = await network.withProvider(provider => provider.getBalance(walletAddress));
+    const price = BigInt(project.mintPrice) * BigInt(mintAmount);
+    if (balance < price) return { ok: false, message: 'Insufficient balance' };
+  } catch (err) {
+    return { ok: false, message: 'RPC error' };
+  }
 
   return { ok: true };
 }

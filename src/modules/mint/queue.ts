@@ -1,6 +1,9 @@
 import { MintAttempt, MintStatus } from '@prisma/client';
 import { prisma } from '@libs/prisma';
 import { EventEmitter } from 'events';
+import { network } from '@modules/network';
+import { estimateGas, sendWithReplacement } from '@modules/tx';
+import { JsonRpcProvider, Wallet, Contract } from 'ethers';
 
 export interface MintRequest {
   userId: string;
@@ -15,6 +18,7 @@ export class MintQueue extends EventEmitter {
   private basicQueue: MintRequest[] = [];
   private processing: Map<string, MintRequest> = new Map();
   private concurrent = 0;
+
   constructor(private maxConcurrent: number) {
     super();
   }
@@ -29,8 +33,10 @@ export class MintQueue extends EventEmitter {
     if (this.concurrent >= this.maxConcurrent) return;
     const request = this.premiumQueue.shift() || this.basicQueue.shift();
     if (!request) return;
+    
     this.processing.set(request.userId, request);
     this.concurrent++;
+    
     try {
       await prisma.mintAttempt.create({
         data: {
@@ -41,13 +47,29 @@ export class MintQueue extends EventEmitter {
           status: MintStatus.PROCESSING
         }
       });
-      // Placeholder: actual mint logic should be implemented here
-      await new Promise(res => setTimeout(res, 100));
-      // mark as confirmed
+
+      const project = await prisma.mintProject.findUnique({ where: { id: request.projectId } });
+      if (!project) throw new Error('Project not found');
+
+      const provider: JsonRpcProvider = network.getProvider();
+      const wallet = new Wallet(process.env.PRIVATE_KEY ?? '', provider);
+      const abi = ["function " + project.mintFunction];
+      const contract = new Contract(project.contractAddress, abi, provider);
+
+      const gas = await estimateGas({
+        to: project.contractAddress,
+        data: contract.interface.encodeFunctionData(project.mintFunction.split('(')[0], [request.amount])
+      }, provider);
+
+      await sendWithReplacement(wallet, contract, project.mintFunction.split('(')[0], [request.amount], {
+        gasMultiplier: 1.1
+      });
+
       await prisma.mintAttempt.updateMany({
         where: { userId: request.userId, projectId: request.projectId },
-        data: { status: MintStatus.CONFIRMED }
+        data: { status: MintStatus.CONFIRMED, gasUsed: gas.gasLimit?.toString() }
       });
+
       this.emit('processed', request);
     } catch (err) {
       await prisma.mintAttempt.updateMany({
