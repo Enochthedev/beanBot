@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { checkUserAccess, validateMintEligibility, MintQueue, AccessLevel } from '@modules/mint';
+import { getUserWallet } from '@modules/wallet';
 
 const queue = new MintQueue(5);
 
@@ -24,7 +25,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (access === AccessLevel.NONE) {
     return interaction.reply({ content: '❌ You do not have access to mint.', ephemeral: true });
   }
-  const walletAddress = '0x0000000000000000000000000000000000000000'; // placeholder
+  const walletAddress = await getUserWallet(interaction.user.id);
+  if (!walletAddress) {
+    return interaction.reply({ content: '❌ No wallet connected. Run /connect-wallet first.', ephemeral: true });
+  }
   const validation = await validateMintEligibility(walletAddress, projectId, amount);
   if (!validation.ok) {
     return interaction.reply({ content: `❌ ${validation.message}`, ephemeral: true });
