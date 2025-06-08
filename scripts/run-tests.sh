@@ -6,10 +6,8 @@ if [ ! -d node_modules ]; then
   echo "Installing Node.js dependencies..."
   if command -v pnpm >/dev/null 2>&1; then
     pnpm install
-  elif command -v npm >/dev/null 2>&1; then
-    npm ci
   else
-    echo "Error: neither pnpm nor npm found in PATH." >&2
+    echo "Error: pnpm not found in PATH." >&2
     exit 1
   fi
 fi

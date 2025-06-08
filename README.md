@@ -12,7 +12,7 @@ pnpm run dev
 ## Prerequisites
 Running the full test suite requires several runtimes:
 
-- **Node.js** with either `pnpm` or `npm` available in your `PATH`
+- **Node.js** with `pnpm` available in your `PATH`
 - **Rust** (`cargo` command)
 - **Python 3** with `pytest`
 
@@ -100,12 +100,12 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
 
-The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
+The `scripts/run-tests.sh` script will run `pnpm install` when
 `node_modules` is missing, then execute the TypeScript, Rust and Python tests.
 If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 
