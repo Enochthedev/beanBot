@@ -67,6 +67,11 @@ WEBSOCKET_RPC_URL=wss://mainnet.infura.io/ws/v3/your_key
 
 The bot will automatically switch providers on failure and stream new blocks when a WebSocket URL is provided.
 
+Additional options:
+- `GAS_MULTIPLIER` adjusts gas fees for replacement transactions (default `1.2`).
+- `MINT_MAX_RETRIES` controls how many times a failed mint is retried (default `2`).
+- Set `USE_FLASHBOTS=true` to route transactions through Flashbots.
+
 ## Available Commands
 The bot exposes several Discord slash commands:
 
@@ -83,6 +88,7 @@ The bot exposes several Discord slash commands:
 When `ENABLE_PERFORMANCE_MONITORING` is `true`, a Prometheus metrics endpoint is
 exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
+
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
 The `scripts/run-tests.sh` script automatically installs packages with `npm ci`
@@ -92,3 +98,11 @@ tests:
 ```bash
 npm run test
 ```
+
+
+## Queue Limits
+The mint queue will hold at most `MAX_QUEUE_SIZE` requests (defaults to `1000`).
+Additional requests are dropped once the limit is exceeded.
+Detection opportunities are emitted when a project's score meets `DETECTION_SCORE_THRESHOLD` (default `1`).
+
+
