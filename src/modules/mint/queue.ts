@@ -21,7 +21,27 @@ export class MintQueue extends EventEmitter {
   private processing: Map<string, MintRequest> = new Map();
   private concurrent = 0;
   private timer?: NodeJS.Timeout;
-  private maxRetries = parseInt(process.env.MINT_MAX_RETRIES ?? '2', 10);
+  private maxRetries = config.mintMaxRetries;
+  private nextNonce?: number;
+  private nonceLock: Promise<void> = Promise.resolve();
+
+  private async getNextNonce(provider: JsonRpcProvider, wallet: Wallet) {
+    const release = (() => {
+      let res: () => void;
+      const prom = new Promise<void>(r => (res = r));
+      return { prom, res: res! };
+    })();
+    const prev = this.nonceLock;
+    this.nonceLock = prev.then(() => release.prom);
+    await prev;
+    if (this.nextNonce === undefined) {
+      this.nextNonce = await provider.getTransactionCount(wallet.address, 'pending');
+    }
+    const nonce = this.nextNonce;
+    this.nextNonce++;
+    release.res();
+    return nonce;
+  }
 
   constructor(private maxConcurrent: number) {
     super();
@@ -95,9 +115,13 @@ export class MintQueue extends EventEmitter {
         data: contract.interface.encodeFunctionData(project.mintFunction.split('(')[0], [request.amount])
       }, provider);
 
+      const nonce = await this.getNextNonce(provider, wallet);
+
       await sendWithReplacement(wallet, contract, project.mintFunction.split('(')[0], [request.amount], {
         gasMultiplier: config.gasMultiplier,
-        privateTx: process.env.USE_FLASHBOTS === 'true'
+        privateTx: process.env.USE_FLASHBOTS === 'true',
+        nonce,
+        maxRetries: this.maxRetries
       });
 
       await prisma.mintAttempt.updateMany({
