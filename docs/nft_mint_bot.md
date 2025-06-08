@@ -21,10 +21,28 @@ command.
 
 ## Environment
 The bot requires the following variables (see `.env.example`):
-- `RPC_URL` – WebSocket JSON-RPC endpoint used by the Rust bot (e.g. `wss://...`)
+- `PRIMARY_RPC_URL` – main WebSocket JSON-RPC endpoint
+- `SECONDARY_RPC_URL` / `TERTIARY_RPC_URL` – optional failover endpoints
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+
 - `MINT_BOT_METRICS_PORT` – (optional) port for the Prometheus metrics endpoint
+
+- `GAS_MULTIPLIER` – multiplier applied to gas fees when the TypeScript queue
+  submits a transaction.
+- `MINT_MAX_RETRIES` – maximum retries for failed mints.
+- `USE_FLASHBOTS` – set to `true` to send transactions privately via Flashbots.
+- `DETECTION_SCORE_THRESHOLD` – minimum score before an opportunity triggers
+  queue processing.
+
+- `MINT_GAS_LIMIT` – **optional** override for the gas limit used when minting
+
+### Tuning Gas Limits
+If your contract has complex logic or you notice `out of gas` errors, increase
+`MINT_GAS_LIMIT`. Leaving it blank will automatically estimate the gas limit
+using your RPC provider.
+- `GAS_MULTIPLIER` – multiplier applied to provider fee data when sending transactions
+
 
 ## Adding Logic
 Open `src/modules/nft_mint_bot/src/main.rs` and implement your minting logic.
