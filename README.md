@@ -29,6 +29,13 @@ pnpm run deploy
 - `--with-prisma`: Add Prisma support (PostgreSQL)
 - `--with-mongo`: Add MongoDB support
 
+## Prisma Client
+Generate the Prisma client after editing `prisma/schema.prisma`:
+
+```bash
+pnpm exec prisma generate
+```
+
 ## Rust Mint Bot
 The repository contains a Rust crate located at `src/modules/nft_mint_bot` used for
 fast NFT minting. Build it with:
@@ -100,6 +107,12 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
+
+Generate the Prisma client first:
+
+```bash
+pnpm exec prisma generate
+```
 
 The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
 `node_modules` is missing, generate the Prisma client, and then execute the
