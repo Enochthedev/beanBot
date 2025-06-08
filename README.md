@@ -101,8 +101,9 @@ npm run test
 
 
 ## Queue Limits
-The mint queue will hold at most `MAX_QUEUE_SIZE` requests (defaults to `1000`).
-Additional requests are dropped once the limit is exceeded.
+The mint queue will hold at most `MAX_QUEUE_SIZE` requests per priority
+(defaults to `1000`). When a queue is full, calls to `add()` return `false`
+and emit an `error` event.
 Detection opportunities are emitted when a project's score meets `DETECTION_SCORE_THRESHOLD` (default `1`).
 
 
