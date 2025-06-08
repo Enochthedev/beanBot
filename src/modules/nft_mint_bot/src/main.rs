@@ -33,8 +33,11 @@ async fn main() -> Result<()> {
 
     let contract_addr: Address = cfg.contract_address.parse()?;
     let contract = MintContract::new(contract_addr, client.clone());
-    let tx = contract.mint(address).send().await?;
-    let receipt = tx.await?.transaction_hash;
+    // keep the call alive until the transaction is awaited
+    let call = contract.mint(address);
+    let tx = call.send().await?;
+    // `await` returns `Option<TransactionReceipt>`; unwrap before accessing hash
+    let receipt = tx.await?.unwrap().transaction_hash;
     println!("✅ Minted in tx: {:#x}", receipt);
     Ok(())
 }
