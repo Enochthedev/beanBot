@@ -1,5 +1,6 @@
 mod config;
 mod gas;
+mod metrics;
 mod provider_pool;
 
 use anyhow::Result;
@@ -7,9 +8,11 @@ use config::Config;
 use ethers::prelude::*;
 use gas::estimate_gas_limit;
 use hex::decode;
+use metrics::METRICS;
 use provider_pool::ProviderPool;
 use std::env;
 use std::sync::Arc;
+use std::time::Instant;
 
 fn apply_multiplier(value: U256, multiplier: f64) -> U256 {
     let scaled = (value.as_u128() as f64 * multiplier) as u128;
@@ -27,6 +30,7 @@ abigen!(
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    metrics::init();
     let cfg = Config::load();
     let mut args: Vec<String> = env::args().skip(1).collect();
 
@@ -65,22 +69,29 @@ async fn main() -> Result<()> {
             Ok(provider) => {
                 let client = Arc::new(SignerMiddleware::new(provider, wallet.clone()));
                 let contract = MintContract::new(contract_addr, client.clone());
+                let start = Instant::now();
+
                 match execute_mint(&mode, &args, contract, &cfg).await {
                     Ok(Some(receipt)) => {
+                        let gas = receipt.gas_used.unwrap_or_default().as_u64();
+                        METRICS.record_success(start.elapsed().as_secs_f64(), gas);
                         println!("✅ Minted in tx: {:#x}", receipt.transaction_hash);
                         return Ok(());
                     }
                     Ok(None) => {
+                        METRICS.record_error();
                         println!("❌ Transaction dropped");
                         return Ok(());
                     }
                     Err(e) => {
+                        METRICS.record_error();
                         eprintln!("⚠️ Mint failed on {}: {}", url, e);
                         last_err = Some(e);
                     }
                 }
             }
             Err(e) => {
+                METRICS.record_error();
                 eprintln!("❌ Provider error on {}: {}", url, e);
                 last_err = Some(e);
             }
