@@ -43,6 +43,7 @@ async fn main() -> Result<()> {
         Some(receipt) => println!("✅ Minted in tx: {:#x}", receipt.transaction_hash),
         None => println!("❌ Transaction dropped"),
     }
+
     Ok(())
 }
 
