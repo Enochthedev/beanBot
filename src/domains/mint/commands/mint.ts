@@ -1,7 +1,9 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { checkUserAccess, validateMintEligibility, MintQueue, AccessLevel } from '@modules/mint';
+import { checkUserAccess, validateMintEligibility, globalMintQueue, AccessLevel } from '@modules/mint';
+import { prisma } from '@libs/prisma';
+import { getUserWallet } from '@modules/wallet';
 
-const queue = new MintQueue(5);
+const queue = globalMintQueue;
 
 export const data = new SlashCommandBuilder()
   .setName('mint')
@@ -24,7 +26,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (access === AccessLevel.NONE) {
     return interaction.reply({ content: '❌ You do not have access to mint.', ephemeral: true });
   }
-  const walletAddress = '0x0000000000000000000000000000000000000000'; // placeholder
+  const user = await prisma.user.findUnique({ where: { discordId: interaction.user.id } });
+  if (!user) {
+    return interaction.reply({ content: '❌ No wallet linked. Use /connect-wallet first.', ephemeral: true });
+  }
+  const walletAddress = await getUserWallet(user.id);
+  if (!walletAddress) {
+    return interaction.reply({ content: '❌ No wallet linked. Use /connect-wallet first.', ephemeral: true });
+  }
   const validation = await validateMintEligibility(walletAddress, projectId, amount);
   if (!validation.ok) {
     return interaction.reply({ content: `❌ ${validation.message}`, ephemeral: true });

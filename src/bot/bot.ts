@@ -4,6 +4,9 @@ import { registerCommandHandler } from '@handlers/commands';
 import { registerMessageHandlers } from '@handlers/messages/register-message-handlers';
 import { deployCommands } from '@bot/deploy';
 import { blockStreamer } from '@modules/network';
+import { startDetectionWatcher, detectionEvents } from '@modules/detection';
+import { initMetrics } from '@modules/metrics';
+import { globalMintQueue } from '@modules/mint';
 import chalk from 'chalk';
 
 console.log(chalk.cyanBright('🚀 Starting Discord bot...'));
@@ -16,6 +19,9 @@ client.once('ready', async () => {
   await deployCommands();
 
   blockStreamer.start();
+  startDetectionWatcher();
+  initMetrics(globalMintQueue);
+  detectionEvents.on('opportunity', () => globalMintQueue.processNext());
 
   console.log(
     chalk.greenBright(

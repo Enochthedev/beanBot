@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import { network } from '@modules/network';
 import { estimateGas, sendWithReplacement } from '@modules/tx';
 import { JsonRpcProvider, Wallet, Contract } from 'ethers';
+import { config } from '@config/index';
 
 export interface MintRequest {
   userId: string;
@@ -11,6 +12,7 @@ export interface MintRequest {
   walletAddress: string;
   amount: number;
   priority: 'premium' | 'basic';
+  attempts?: number;
 }
 
 export class MintQueue extends EventEmitter {
@@ -18,21 +20,40 @@ export class MintQueue extends EventEmitter {
   private basicQueue: MintRequest[] = [];
   private processing: Map<string, MintRequest> = new Map();
   private concurrent = 0;
+  private timer?: NodeJS.Timeout;
+  private maxRetries = parseInt(process.env.MINT_MAX_RETRIES ?? '2', 10);
 
   constructor(private maxConcurrent: number) {
     super();
   }
 
+  get length() {
+    return this.premiumQueue.length + this.basicQueue.length;
+  }
+
   add(request: MintRequest) {
     const queue = request.priority === 'premium' ? this.premiumQueue : this.basicQueue;
-    queue.push(request);
+    queue.push({ ...request, attempts: request.attempts ?? 0 });
     this.emit('queued', request);
+    if (!this.timer) this.start();
+  }
+
+  private start() {
+    this.timer = setInterval(() => this.processNext(), 1000);
+  }
+
+  private stop() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = undefined;
   }
 
   async processNext() {
     if (this.concurrent >= this.maxConcurrent) return;
     const request = this.premiumQueue.shift() || this.basicQueue.shift();
-    if (!request) return;
+    if (!request) {
+      this.stop();
+      return;
+    }
     
     this.processing.set(request.userId, request);
     this.concurrent++;
@@ -62,7 +83,8 @@ export class MintQueue extends EventEmitter {
       }, provider);
 
       await sendWithReplacement(wallet, contract, project.mintFunction.split('(')[0], [request.amount], {
-        gasMultiplier: 1.1
+        gasMultiplier: config.gasMultiplier,
+        privateTx: process.env.USE_FLASHBOTS === 'true'
       });
 
       await prisma.mintAttempt.updateMany({
@@ -76,10 +98,17 @@ export class MintQueue extends EventEmitter {
         where: { userId: request.userId, projectId: request.projectId },
         data: { status: MintStatus.FAILED, errorMessage: (err as Error).message }
       });
+      request.attempts = (request.attempts ?? 0) + 1;
+      if (request.attempts <= this.maxRetries) {
+        setTimeout(() => this.add(request), 5000);
+      }
       this.emit('failed', request, err);
     } finally {
       this.processing.delete(request.userId);
       this.concurrent--;
+      setImmediate(() => this.processNext());
     }
   }
 }
+
+export const globalMintQueue = new MintQueue(config.maxConcurrentMints);
