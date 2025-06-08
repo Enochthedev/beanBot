@@ -26,18 +26,24 @@ async fn main() -> Result<()> {
     println!("✅ Config loaded: {}", cfg.rpc_url);
     println!("🚀 Minting to: {}", recipient);
 
-    let provider = Provider::<Ws>::connect(cfg.rpc_url).await?;
     let wallet: LocalWallet = cfg.private_key.parse()?;
-    let client = SignerMiddleware::new(provider, wallet);
-    let client = Arc::new(client);
+    let client: Arc<dyn Middleware> = if cfg.rpc_url.starts_with("ws") {
+        let provider = Provider::<Ws>::connect(&cfg.rpc_url).await?;
+        Arc::new(SignerMiddleware::new(provider, wallet.clone()))
+    } else {
+        let provider = Provider::<Http>::try_from(cfg.rpc_url.as_str())?;
+        Arc::new(SignerMiddleware::new(provider, wallet.clone()))
+    };
 
     let contract_addr: Address = cfg.contract_address.parse()?;
     let contract = MintContract::new(contract_addr, client.clone());
-    // keep the call alive until the transaction is awaited
     let call = contract.mint(address);
     let tx = call.send().await?;
-    // `await` returns `Option<TransactionReceipt>`; unwrap before accessing hash
-    let receipt = tx.await?.unwrap().transaction_hash;
-    println!("✅ Minted in tx: {:#x}", receipt);
+    match tx.await? {
+        Some(receipt) => println!("✅ Minted in tx: {:#x}", receipt.transaction_hash),
+        None => println!("❌ Transaction dropped"),
+    }
+
     Ok(())
 }
+
