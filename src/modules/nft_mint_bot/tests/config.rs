@@ -10,7 +10,10 @@ fn loads_env_vars() {
         "0x0000000000000000000000000000000000000000",
     );
     env::set_var("MINT_GAS_LIMIT", "123456");
+    env::set_var("GAS_MULTIPLIER", "1.5");
+
     let cfg = Config::load();
+
     assert_eq!(cfg.rpc_url, "ws://localhost:8545");
     assert_eq!(cfg.private_key, "abc123");
     assert_eq!(
@@ -18,4 +21,5 @@ fn loads_env_vars() {
         "0x0000000000000000000000000000000000000000"
     );
     assert_eq!(cfg.gas_limit, Some(123456));
+    assert_eq!(cfg.gas_multiplier, 1.5);
 }
