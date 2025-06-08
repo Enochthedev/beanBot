@@ -1,2 +1,5 @@
 .env
 node_modules
+dist
+src/generated/
+src/modules/nft_mint_bot/target/

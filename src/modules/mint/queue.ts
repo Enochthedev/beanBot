@@ -1,4 +1,4 @@
-import { MintStatus } from '@prisma/client';
+import { MintAttempt, MintStatus } from '@prisma/client';
 import { prisma } from '@libs/prisma';
 import { EventEmitter } from 'events';
 import { network } from '@modules/network';
@@ -18,6 +18,7 @@ export class MintQueue extends EventEmitter {
   private basicQueue: MintRequest[] = [];
   private processing: Map<string, MintRequest> = new Map();
   private concurrent = 0;
+
   constructor(private maxConcurrent: number) {
     super();
   }
@@ -32,8 +33,10 @@ export class MintQueue extends EventEmitter {
     if (this.concurrent >= this.maxConcurrent) return;
     const request = this.premiumQueue.shift() || this.basicQueue.shift();
     if (!request) return;
+    
     this.processing.set(request.userId, request);
     this.concurrent++;
+    
     try {
       await prisma.mintAttempt.create({
         data: {
@@ -47,6 +50,7 @@ export class MintQueue extends EventEmitter {
 
       const project = await prisma.mintProject.findUnique({ where: { id: request.projectId } });
       if (!project) throw new Error('Project not found');
+
       const provider: JsonRpcProvider = network.getProvider();
       const wallet = new Wallet(process.env.PRIVATE_KEY ?? '', provider);
       const abi = ["function " + project.mintFunction];

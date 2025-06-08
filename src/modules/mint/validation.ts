@@ -1,5 +1,6 @@
 import { prisma } from '@libs/prisma';
 import { network } from '@modules/network';
+import { ethers } from 'ethers';
 
 export interface ValidationResult {
   ok: boolean;

@@ -20,8 +20,6 @@ model User {
   mintAttempts  MintAttempt[]
   walletSessions WalletSession[]
   nftHoldings   NftHolding[]
-
-  @@map("users")
 }
 
 model Subscription {
@@ -36,8 +34,6 @@ model Subscription {
   updatedAt       DateTime          @updatedAt
 
   user User @relation(fields: [userId], references: [id])
-
-  @@map("subscriptions")
 }
 
 model NftHolding {
@@ -53,7 +49,6 @@ model NftHolding {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([userId, contractAddress, tokenId])
-  @@map("nft_holdings")
 }
 
 model MintProject {
@@ -73,8 +68,6 @@ model MintProject {
   updatedAt         DateTime @updatedAt
 
   mintAttempts MintAttempt[]
-
-  @@map("mint_projects")
 }
 
 model MintAttempt {
@@ -96,8 +89,6 @@ model MintAttempt {
 
   user User @relation(fields: [userId], references: [id])
   project MintProject @relation(fields: [projectId], references: [id])
-
-  @@map("mint_attempts")
 }
 
 model WalletSession {
@@ -111,8 +102,6 @@ model WalletSession {
   createdAt     DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
-
-  @@map("wallet_sessions")
 }
 
 model BotSettings {
@@ -124,8 +113,6 @@ model BotSettings {
   failureRemovalEnabled Boolean  @default(true)
   maintenanceMode       Boolean  @default(false)
   updatedAt             DateTime @updatedAt
-
-  @@map("bot_settings")
 }
 
 enum SubscriptionType {
@@ -142,4 +129,56 @@ enum MintStatus {
   FAILED
   CANCELLED
   INSUFFICIENT_FUNDS
+}
+
+model TwitterAccount {
+  id              String   @id @default(cuid())
+  twitterUserId   String   @unique
+  accessToken     String
+  refreshToken    String
+  expiresAt       Int
+  type            String
+  createdAt       DateTime @default(now())
+
+  links           TwitterLink[]
+}
+
+model TwitterLink {
+  id              String   @id @default(cuid())
+  discordUserId   String
+  guildId         String
+  twitterUserId   String
+  type            String
+  createdAt       DateTime @default(now())
+
+  twitterAccount  TwitterAccount @relation(fields: [twitterUserId], references: [twitterUserId])
+
+  @@unique([discordUserId, guildId])
+}
+
+model SnipeLog {
+  id            String   @id @default(cuid())
+  userId        String
+  tokenAddress  String
+  amount        Float
+  txHash        String
+  status        String   // "success" | "fail"
+  executedAt    DateTime
+}
+
+model TokenCall {
+  id            String   @id @default(cuid())
+  tokenAddress  String
+  tokenSymbol   String?
+  discordUserId String
+  guildId       String
+  channelId     String
+  fdv           Float?
+  volume        Float?
+  ath           Float?
+  currentPrice  Float?
+  ageMinutes    Int?
+  lp            Float?
+  status        String   // "called" | "deleted" | "executed"
+  createdAt     DateTime @default(now())
 }
