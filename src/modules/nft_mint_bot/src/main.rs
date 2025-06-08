@@ -35,6 +35,7 @@ where
     let contract_addr: Address = cfg.contract_address.parse()?;
     let mut call = MintContract::new(contract_addr, client.clone()).mint(address);
 
+    // Estimate or use configured gas limit
     let gas_limit = if let Some(limit) = cfg.gas_limit {
         U256::from(limit)
     } else {
@@ -42,12 +43,14 @@ where
     };
     call = call.gas(gas_limit);
 
+    // Apply EIP-1559 gas pricing with multiplier
     if let Some(tx) = call.tx.as_eip1559_mut() {
         let (max_fee, prio_fee) = client.estimate_eip1559_fees(None).await?;
         tx.max_fee_per_gas = Some(apply_multiplier(max_fee, cfg.gas_multiplier));
         tx.max_priority_fee_per_gas = Some(apply_multiplier(prio_fee, cfg.gas_multiplier));
     }
 
+    // Send the transaction and check status
     let pending = call.send().await?;
     match pending.await? {
         Some(receipt) => println!("✅ Minted in tx: {:#x}", receipt.transaction_hash),

@@ -22,6 +22,7 @@ export const config = {
   maxQueueSize: parseInt(process.env.MAX_QUEUE_SIZE ?? '1000', 10),
   minBalanceBufferEth: parseFloat(process.env.MIN_BALANCE_BUFFER_ETH ?? '0.1'),
   gasMultiplier: parseFloat(process.env.GAS_MULTIPLIER ?? '1.2'),
+  mintMaxRetries: parseInt(process.env.MINT_MAX_RETRIES ?? '2', 10),
 
   // Twitter API Configuration
   twitterClientId: process.env.TWITTER_CLIENT_ID!,
