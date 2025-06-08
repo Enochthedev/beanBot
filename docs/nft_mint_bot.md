@@ -24,6 +24,7 @@ The bot requires the following variables (see `.env.example`):
 - `RPC_URL` – WebSocket JSON-RPC endpoint used by the Rust bot (e.g. `wss://...`)
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+- `GAS_MULTIPLIER` – multiplier applied to provider fee data when sending transactions
 
 ## Adding Logic
 Open `src/modules/nft_mint_bot/src/main.rs` and implement your minting logic.
