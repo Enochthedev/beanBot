@@ -24,6 +24,12 @@ The bot requires the following variables (see `.env.example`):
 - `RPC_URL` – WebSocket JSON-RPC endpoint used by the Rust bot (e.g. `wss://...`)
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+- `GAS_MULTIPLIER` – multiplier applied to gas fees when the TypeScript queue
+  submits a transaction.
+- `MINT_MAX_RETRIES` – maximum retries for failed mints.
+- `USE_FLASHBOTS` – set to `true` to send transactions privately via Flashbots.
+- `DETECTION_SCORE_THRESHOLD` – minimum score before an opportunity triggers
+  queue processing.
 
 ## Adding Logic
 Open `src/modules/nft_mint_bot/src/main.rs` and implement your minting logic.
