@@ -14,6 +14,8 @@ if [ ! -d node_modules ]; then
   fi
 fi
 
+# Install Python requirements for the coin sniper module
+pip install -r src/modules/coin_sniper/requirements.txt
 MOCK_CACHE=1 TS_NODE_COMPILER_OPTIONS='{"module":"commonjs"}' TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register -r tsconfig-paths/register ./node_modules/mocha/bin/_mocha tests/**/*.test.ts
 
 if command -v cargo >/dev/null 2>&1; then

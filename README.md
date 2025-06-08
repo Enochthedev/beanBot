@@ -77,7 +77,9 @@ The bot will automatically switch providers on failure and stream new blocks whe
 Additional options:
 - `GAS_MULTIPLIER` adjusts gas fees for replacement transactions (default `1.2`).
 - `MINT_MAX_RETRIES` controls how many times a failed mint is retried (default `2`).
-- Set `USE_FLASHBOTS=true` to route transactions through Flashbots.
+- Set `USE_FLASHBOTS=true` to route transactions through Flashbots. When this
+  variable is enabled the mint queue will send transactions privately via the
+  Flashbots RPC.
 
 ## Available Commands
 The bot exposes several Discord slash commands:
@@ -98,6 +100,7 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
+
 The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
 `node_modules` is missing, then execute the TypeScript, Rust and Python tests.
 If `cargo` or `pytest` are not available they are skipped gracefully:
