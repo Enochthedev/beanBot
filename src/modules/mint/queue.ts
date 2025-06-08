@@ -5,6 +5,23 @@ import { network } from '@modules/network';
 import { estimateGas, sendWithReplacement } from '@modules/tx';
 import { JsonRpcProvider, Wallet, Contract } from 'ethers';
 import { config } from '@config/index';
+import path from 'path';
+import fs from 'fs';
+import { client } from '@bot/client';
+
+const LOG_PATH = path.resolve(process.cwd(), 'logs', 'mint-failures.log');
+if (!fs.existsSync(path.dirname(LOG_PATH))) {
+  fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
+}
+const logStream = fs.createWriteStream(LOG_PATH, { flags: 'a' });
+
+const RECOVERABLE_CODES = new Set([
+  'NETWORK_ERROR',
+  'TIMEOUT',
+  'SERVER_ERROR',
+  'NONCE_EXPIRED',
+  'REPLACEMENT_UNDERPRICED',
+]);
 
 export interface MintRequest {
   userId: string;
@@ -107,15 +124,32 @@ export class MintQueue extends EventEmitter {
 
       this.emit('processed', request);
     } catch (err) {
+      const code = (err as any)?.code ?? (err as any)?.error?.code;
       await prisma.mintAttempt.updateMany({
         where: { userId: request.userId, projectId: request.projectId },
         data: { status: MintStatus.FAILED, errorMessage: (err as Error).message }
       });
+
       request.attempts = (request.attempts ?? 0) + 1;
-      if (request.attempts <= this.maxRetries) {
-        setTimeout(() => this.add(request), 5000);
+      const shouldRetry = RECOVERABLE_CODES.has(code);
+
+      if (shouldRetry && request.attempts <= this.maxRetries) {
+        const delay = Math.pow(2, request.attempts - 1) * 5000;
+        setTimeout(() => this.add(request), delay);
+      } else {
+        logStream.write(
+          `${new Date().toISOString()}|user:${request.userId}|project:${request.projectId}|error:${(err as Error).message}\n`
+        );
+        try {
+          const user = await client.users.fetch(request.userId);
+          await user.send(
+            `❌ Your mint for project ${request.projectId} failed after ${request.attempts} attempts.`
+          );
+        } catch {
+          // ignore DM failures
+        }
+        this.emit('failed', request, err);
       }
-      this.emit('failed', request, err);
     } finally {
       this.processing.delete(request.userId);
       this.concurrent--;
