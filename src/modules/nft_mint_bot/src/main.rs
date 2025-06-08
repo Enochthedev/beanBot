@@ -33,8 +33,12 @@ async fn main() -> Result<()> {
 
     let contract_addr: Address = cfg.contract_address.parse()?;
     let contract = MintContract::new(contract_addr, client.clone());
-    let tx = contract.mint(address).send().await?;
-    let receipt = tx.await?.transaction_hash;
-    println!("✅ Minted in tx: {:#x}", receipt);
+    let call = contract.mint(address);
+    let tx = call.send().await?;
+    match tx.await? {
+        Some(receipt) => println!("✅ Minted in tx: {:#x}", receipt.transaction_hash),
+        None => println!("❌ Transaction dropped"),
+    }
     Ok(())
 }
+
