@@ -25,7 +25,7 @@ abigen!(
 async fn mint_with_provider<P>(
     provider: Provider<P>,
     wallet: LocalWallet,
-    cfg: Config,
+    cfg: &Config,
     address: Address,
 ) -> Result<()>
 where
@@ -35,7 +35,6 @@ where
     let contract_addr: Address = cfg.contract_address.parse()?;
     let mut call = MintContract::new(contract_addr, client.clone()).mint(address);
 
-    // Apply gas limit from config or estimate dynamically
     let gas_limit = if let Some(limit) = cfg.gas_limit {
         U256::from(limit)
     } else {
@@ -43,7 +42,6 @@ where
     };
     call = call.gas(gas_limit);
 
-    // Apply EIP-1559 gas pricing with multiplier
     if let Some(tx) = call.tx.as_eip1559_mut() {
         let (max_fee, prio_fee) = client.estimate_eip1559_fees(None).await?;
         tx.max_fee_per_gas = Some(apply_multiplier(max_fee, cfg.gas_multiplier));
@@ -64,19 +62,50 @@ async fn main() -> Result<()> {
     let cfg = Config::load();
     let recipient = env::args().nth(1).expect("Recipient address required");
     let address: Address = recipient.parse()?;
-
-    println!("✅ Config loaded: {}", cfg.rpc_url);
-    println!("🚀 Minting to: {}", recipient);
-
     let wallet: LocalWallet = cfg.private_key.parse()?;
 
-    if cfg.rpc_url.starts_with("ws") {
-        // Use ProviderPool abstraction for WebSocket
-        let pool = ProviderPool::new(cfg.rpc_url.clone(), 3).await?;
-        let provider = pool.get_provider().await;
-        mint_with_provider(provider, wallet, cfg, address).await
-    } else {
-        let provider = Provider::<Http>::try_from(cfg.rpc_url.as_str())?;
-        mint_with_provider(provider, wallet, cfg, address).await
+    println!("✅ Loaded {} RPC URL(s)", cfg.rpc_urls.len());
+    println!("🚀 Minting to: {}", recipient);
+
+    let mut last_err: Option<anyhow::Error> = None;
+    for url in &cfg.rpc_urls {
+        println!("🔗 Trying provider: {}", url);
+
+        if url.starts_with("ws") {
+            match ProviderPool::new(url.clone(), 3).await {
+                Ok(pool) => {
+                    let provider = pool.get_provider().await;
+                    match mint_with_provider(provider, wallet.clone(), &cfg, address).await {
+                        Ok(_) => return Ok(()),
+                        Err(e) => {
+                            eprintln!("⚠️ WebSocket RPC failed: {}", e);
+                            last_err = Some(e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ WebSocket connection error: {}", e);
+                    last_err = Some(e.into());
+                }
+            }
+        } else {
+            match Provider::<Http>::try_from(url.as_str()) {
+                Ok(provider) => {
+                    match mint_with_provider(provider, wallet.clone(), &cfg, address).await {
+                        Ok(_) => return Ok(()),
+                        Err(e) => {
+                            eprintln!("⚠️ HTTP RPC failed: {}", e);
+                            last_err = Some(e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ Invalid HTTP provider URL: {}", e);
+                    last_err = Some(e.into());
+                }
+            }
+        }
     }
+
+    Err(last_err.unwrap_or_else(|| anyhow::anyhow!("All RPC providers failed")))
 }
