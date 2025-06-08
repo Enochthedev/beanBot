@@ -9,6 +9,13 @@ pnpm install
 pnpm run dev
 ```
 
+## Prerequisites
+Running the full test suite requires several runtimes:
+
+- **Node.js** with either `pnpm` or `npm` available in your `PATH`
+- **Rust** (`cargo` command)
+- **Python 3** with `pytest`
+
 ## Add a new command
 Add a file to `src/domains/{domain}/commands/`, then run:
 
@@ -93,7 +100,10 @@ exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
-The `scripts/run-tests.sh` script installs Node dependencies with `npm ci` if `node_modules` is missing, installs Python packages from `src/modules/coin_sniper/requirements.txt`, and then executes all TypeScript, Rust and Python tests:
+
+The `scripts/run-tests.sh` script will run `pnpm install` (or `npm ci`) when
+`node_modules` is missing, then execute the TypeScript, Rust and Python tests.
+If `cargo` or `pytest` are not available they are skipped gracefully:
 
 ```bash
 npm run test
