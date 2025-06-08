@@ -25,6 +25,12 @@ The bot requires the following variables (see `.env.example`):
 - `SECONDARY_RPC_URL` / `TERTIARY_RPC_URL` – optional failover endpoints
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+- `GAS_MULTIPLIER` – multiplier applied to gas fees when the TypeScript queue
+  submits a transaction.
+- `MINT_MAX_RETRIES` – maximum retries for failed mints.
+- `USE_FLASHBOTS` – set to `true` to send transactions privately via Flashbots.
+- `DETECTION_SCORE_THRESHOLD` – minimum score before an opportunity triggers
+  queue processing.
 
 - `MINT_GAS_LIMIT` – **optional** override for the gas limit used when minting
 
