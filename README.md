@@ -2,7 +2,8 @@
 
 A CLI-generated Discord bot in TypeScript with domain-based modular structure.
 
-For an overview of the project structure see [docs/developer_overview.md](docs/developer_overview.md).
+For a high level setup walkthrough and command reference targeted at server owners and moderators see [docs/client_guide.md](docs/client_guide.md).
+
 
 ## Quickstart
 
