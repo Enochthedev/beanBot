@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { cache } from '@/lib/cache';
-import { ethers } from 'ethers';
+import { prisma } from '@libs/prisma';
+import { verifyWalletSignature } from '@modules/wallet';
 
 export const data = new SlashCommandBuilder()
   .setName('confirm-wallet')
@@ -13,15 +13,26 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const signature = interaction.options.getString('signature', true);
-  const pending = await cache.get<{ address: string; nonce: string }>(`wallet_nonce:${interaction.user.id}`);
-  if (!pending) return interaction.reply({ content: '❌ No pending wallet connection.', ephemeral: true });
-  try {
-    const signer = ethers.verifyMessage(pending.nonce, signature);
-    if (signer.toLowerCase() !== pending.address.toLowerCase()) throw new Error('Address mismatch');
-    await cache.set(`wallet:${interaction.user.id}`, pending.address);
-    await cache.del(`wallet_nonce:${interaction.user.id}`);
-    await interaction.reply({ content: `✅ Wallet ${pending.address} connected!`, ephemeral: true });
-  } catch (err) {
+
+  const user = await prisma.user.findUnique({ where: { discordId: interaction.user.id } });
+  if (!user) {
+    return interaction.reply({ content: '❌ No pending wallet connection.', ephemeral: true });
+  }
+
+  const session = await prisma.walletSession.findFirst({
+    where: { userId: user.id, isActive: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (!session) {
+    return interaction.reply({ content: '❌ No pending wallet connection.', ephemeral: true });
+  }
+
+  const verified = await verifyWalletSignature(session.id, signature);
+
+  if (!verified) {
     await interaction.reply({ content: '❌ Invalid signature.', ephemeral: true });
+  } else {
+    await interaction.reply({ content: `✅ Wallet ${session.walletAddress} connected!`, ephemeral: true });
   }
 }
