@@ -96,6 +96,7 @@ When `ENABLE_PERFORMANCE_MONITORING` is `true`, a Prometheus metrics endpoint is
 exposed at `/metrics` on the port defined by `METRICS_PORT` (default `9090`).
 
 
+
 ## Running Tests
 The test suite relies on dev dependencies such as `ts-node`.
 
@@ -113,5 +114,3 @@ The mint queue will hold at most `MAX_QUEUE_SIZE` requests per priority
 (defaults to `1000`). When a queue is full, calls to `add()` return `false`
 and emit an `error` event.
 Detection opportunities are emitted when a project's score meets `DETECTION_SCORE_THRESHOLD` (default `1`).
-
-
