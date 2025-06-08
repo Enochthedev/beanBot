@@ -1,10 +1,12 @@
 mod config;
 mod gas;
+mod provider_pool;
 
 use anyhow::Result;
 use config::Config;
 use ethers::prelude::*;
 use gas::estimate_gas_limit;
+use provider_pool::ProviderPool;
 use std::env;
 use std::sync::Arc;
 
@@ -69,7 +71,9 @@ async fn main() -> Result<()> {
     let wallet: LocalWallet = cfg.private_key.parse()?;
 
     if cfg.rpc_url.starts_with("ws") {
-        let provider = Provider::<Ws>::connect(&cfg.rpc_url).await?;
+        // Use ProviderPool abstraction for WebSocket
+        let pool = ProviderPool::new(cfg.rpc_url.clone(), 3).await?;
+        let provider = pool.get_provider().await;
         mint_with_provider(provider, wallet, cfg, address).await
     } else {
         let provider = Provider::<Http>::try_from(cfg.rpc_url.as_str())?;
