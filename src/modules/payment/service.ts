@@ -19,7 +19,13 @@ export async function createPayment(
   channelId?: string,
   txHash?: string
 ) {
-  const walletAddress = method === PaymentMethod.ON_CHAIN ? selectReceiver() : undefined;
+  const walletAddress =
+    method === PaymentMethod.ON_CHAIN ? selectReceiver() : undefined;
+
+  if (method === PaymentMethod.ON_CHAIN && !walletAddress) {
+    throw new Error('No payment receiver address configured');
+  }
+
   return prisma.payment.create({
     data: {
       userId,
