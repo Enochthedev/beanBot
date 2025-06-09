@@ -59,7 +59,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     );
   } catch (err) {
     console.error(err);
-    await interaction.reply({ content: '❌ Payment receiver address not configured.', ephemeral: true });
+    const msg = (err as Error).message.includes('disabled')
+      ? '❌ Payment method disabled.'
+      : '❌ Payment receiver address not configured.';
+    await interaction.reply({ content: msg, ephemeral: true });
     return;
   }
 
@@ -68,13 +71,17 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
+  const cfg = await prisma.guildConfig.findUnique({ where: { guildId: interaction.guild.id } });
+  const adminOverwrites = (cfg?.adminRoleIds || []).map(id => ({ id, allow: [PermissionFlagsBits.ViewChannel] }));
+
   const channel = await interaction.guild.channels.create({
     name: `payment-${interaction.user.username}-${payment.id.slice(0,4)}`,
     type: ChannelType.GuildText,
     permissionOverwrites: [
       { id: interaction.guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
       { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel] },
-      { id: interaction.guild.ownerId, allow: [PermissionFlagsBits.ViewChannel], type: OverwriteType.Member }
+      { id: interaction.guild.ownerId, allow: [PermissionFlagsBits.ViewChannel], type: OverwriteType.Member },
+      ...adminOverwrites
     ]
   });
 

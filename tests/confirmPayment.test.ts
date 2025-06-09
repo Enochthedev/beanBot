@@ -22,12 +22,18 @@ describe('confirm-payment command', () => {
   it('confirms payment when transaction matches', async () => {
     process.env.USDT_ADDRESS = '0xusdt';
     process.env.USDC_ADDRESS = '0xusdc';
+    Object.keys(require.cache).forEach(k => {
+      if (k.includes('src/config/index')) delete (require as any).cache[k];
+    });
 
     const wallet = '0x000000000000000000000000000000000000dEaD';
     const payment = { id: 'pay1', walletAddress: wallet, amount: '10', currency: PaymentCurrency.USDT } as any;
     const paymentStub = sinon.stub().resolves(payment);
     const originalPaymentModel = prisma.payment as any;
-    const updateStub = sinon.stub().resolves({});
+    const updateStub = sinon.stub().resolves({ service: { name: 'subscription-basic' } });
+    const subCreate = sinon.stub().resolves({});
+    const originalSub = prisma.subscription as any;
+    (prisma as any).subscription = { create: subCreate } as any;
     (prisma as any).payment = { findFirst: paymentStub, update: updateStub } as any;
 
     const iface = new ethers.Interface(['function transfer(address to, uint256 value)']);
@@ -41,7 +47,7 @@ describe('confirm-payment command', () => {
     (network as any).withProvider = (fn: any) => fn(provider);
 
     const { execute } = await import('../src/domains/web3/commands/confirm-payment');
-    const interaction = mockInteraction('0xtx');
+    const interaction = mockInteraction('0x' + 'a'.repeat(64));
     await execute(interaction);
 
     expect(updateStub.called).to.equal(true);
@@ -49,11 +55,15 @@ describe('confirm-payment command', () => {
 
     (network as any).withProvider = originalWP;
     (prisma as any).payment = originalPaymentModel;
+    (prisma as any).subscription = originalSub;
   });
 
   it('rejects mismatched transaction', async () => {
     process.env.USDT_ADDRESS = '0xusdt';
     process.env.USDC_ADDRESS = '0xusdc';
+    Object.keys(require.cache).forEach(k => {
+      if (k.includes('src/config/index')) delete (require as any).cache[k];
+    });
 
     const wallet = '0x000000000000000000000000000000000000dEaD';
     const payment = { id: 'pay1', walletAddress: wallet, amount: '10', currency: PaymentCurrency.USDT } as any;
@@ -73,7 +83,7 @@ describe('confirm-payment command', () => {
     (network as any).withProvider = (fn: any) => fn(provider);
 
     const { execute } = await import('../src/domains/web3/commands/confirm-payment');
-    const interaction = mockInteraction('0xtx');
+    const interaction = mockInteraction('0x' + 'a'.repeat(64));
     await execute(interaction);
 
     expect(updateStub.called).to.equal(false);

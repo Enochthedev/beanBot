@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { PaymentMethod } from '@prisma/client';
 dotenv.config();
 
 export const config = {
@@ -44,4 +45,5 @@ export const config = {
   paymentReceiverAddresses: (process.env.PAYMENT_RECEIVER_ADDRESSES ?? '').split(',').map(a => a.trim()).filter(Boolean),
   usdtAddress: process.env.USDT_ADDRESS ?? '',
   usdcAddress: process.env.USDC_ADDRESS ?? '',
+  disabledPaymentMethods: [] as PaymentMethod[],
 };
