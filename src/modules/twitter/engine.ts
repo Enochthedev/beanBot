@@ -18,7 +18,7 @@ export class TwitterEngine {
       throw new Error(`Twitter error: ${res.statusText}`)
     }
 
-    return res.json()
+    return res.json() as Promise<TweetResponse>
   }
 
   // Additional methods:
