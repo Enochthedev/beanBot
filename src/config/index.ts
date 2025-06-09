@@ -42,4 +42,6 @@ export const config = {
 
   // Payment configuration
   paymentReceiverAddresses: (process.env.PAYMENT_RECEIVER_ADDRESSES ?? '').split(',').map(a => a.trim()).filter(Boolean),
+  usdtAddress: process.env.USDT_ADDRESS ?? '',
+  usdcAddress: process.env.USDC_ADDRESS ?? '',
 };
