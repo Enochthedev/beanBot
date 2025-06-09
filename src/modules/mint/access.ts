@@ -13,7 +13,13 @@ export async function checkUserAccess(discordId: string): Promise<AccessLevel> {
   const sub = await prisma.subscription.findFirst({
     where: { userId: user.id, isActive: true }
   });
-  if (sub) return sub.subscriptionType === 'PREMIUM' ? AccessLevel.PREMIUM : AccessLevel.BASIC;
+  if (sub) {
+    if (sub.expiresAt && sub.expiresAt < new Date()) {
+      await prisma.subscription.update({ where: { id: sub.id }, data: { isActive: false } });
+    } else {
+      return sub.subscriptionType === 'PREMIUM' ? AccessLevel.PREMIUM : AccessLevel.BASIC;
+    }
+  }
   const holding = await prisma.nftHolding.findFirst({
     where: { userId: user.id, isVerified: true, mintsRemaining: { gt: 0 } }
   });

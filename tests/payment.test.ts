@@ -1,3 +1,4 @@
+process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -27,6 +28,8 @@ describe('payment module', () => {
     } as any;
 
     process.env.PAYMENT_RECEIVER_ADDRESSES = '0xabc';
+    const { config } = await import('../src/config');
+    config.disabledPaymentMethods = [];
 
     const { createPayment, updatePaymentStatus, getUserPayments } = await import('../src/modules/payment');
     await createPayment('u1', 'svc1', '10', PaymentCurrency.USDT, PaymentMethod.ON_CHAIN, 'chan1', 'hash');
@@ -65,6 +68,36 @@ describe('payment module', () => {
 
     expect(error).to.be.an('Error');
     expect((error as Error).message).to.match(/receiver address/);
+    expect(createStub.called).to.equal(false);
+
+    (prisma as any).payment = original;
+  });
+
+  it('throws when payment method disabled', async () => {
+    const original = prisma.payment as any;
+    const createStub = sinon.stub().resolves({ id: 'pay1' });
+    (prisma as any).payment = { create: createStub } as any;
+
+    process.env.PAYMENT_RECEIVER_ADDRESSES = '0xabc';
+
+    Object.keys(require.cache).forEach(k => {
+      if (k.includes('src/config/index')) delete (require as any).cache[k];
+      if (k.includes('src/modules/payment')) delete (require as any).cache[k];
+    });
+    const { createPayment } = await import('../src/modules/payment');
+    const { config } = await import('../src/config');
+
+    config.disabledPaymentMethods.push(PaymentMethod.ON_CHAIN);
+
+    let error: any;
+    try {
+      await createPayment('u1', 'svc1', '10', PaymentCurrency.USDT, PaymentMethod.ON_CHAIN);
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.be.an('Error');
+    expect((error as Error).message).to.match(/disabled/);
     expect(createStub.called).to.equal(false);
 
     (prisma as any).payment = original;

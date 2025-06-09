@@ -11,6 +11,10 @@ import { config } from '@config/index';
 
 const receiverAddresses = config.paymentReceiverAddresses;
 
+function methodEnabled(method: PaymentMethod): boolean {
+  return !config.disabledPaymentMethods.includes(method);
+}
+
 function selectReceiver(): string | undefined {
   if (receiverAddresses.length === 0) return undefined;
   const index = Math.floor(Math.random() * receiverAddresses.length);
@@ -26,6 +30,9 @@ export async function createPayment(
   channelId?: string,
   txHash?: string
 ) {
+  if (!methodEnabled(method)) {
+    throw new Error('Payment method disabled');
+  }
   const walletAddress =
     method === PaymentMethod.ON_CHAIN ? selectReceiver() : undefined;
 
