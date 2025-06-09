@@ -57,8 +57,10 @@ Advanced gas settings, Flashbots integration and batch minting are documented in
 [`docs/advanced_minting.md`](docs/advanced_minting.md).
 
 ## Command Restrictions & Info
-Commands can be limited to specific channels using `/restrict-command`. Admins
-can view the commands available in the current channel with `/info`.
+Commands can be limited to specific channels using `/restrict-command`. For
+example, run `/restrict-command command:pay channel:#payments` to limit the
+`/pay` command. Admins can view the commands available in the current channel
+with `/info`.
 
 ## Moderation Features
 - `/report` – members can report misbehaving users. The report is logged and the user is timed out for 10 minutes.
@@ -98,6 +100,9 @@ The bot exposes several Discord slash commands:
 - `/connect-wallet` - Link a wallet by signing a message
 - `/wallet-info` - View your connected wallet
 - `/subscription-info` - Check subscription status
+- `/pay` - open a private payment ticket
+- `/confirm-payment` - confirm an on-chain payment
+- `/set-service-price` - admin command to configure service pricing
 - `/projects` - List active mint projects
 - `/mint` - Queue a mint request
 - `/mint-status` - View your last mint status

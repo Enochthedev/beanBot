@@ -39,4 +39,7 @@ export const config = {
 
   // Redis Configuration
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+
+  // Payment configuration
+  paymentReceiverAddresses: (process.env.PAYMENT_RECEIVER_ADDRESSES ?? '').split(',').map(a => a.trim()).filter(Boolean),
 };
