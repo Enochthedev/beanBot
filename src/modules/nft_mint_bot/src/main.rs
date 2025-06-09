@@ -92,7 +92,7 @@ async fn try_provider(
     args: &[String],
     cfg: &Config,
 ) -> Result<Option<TransactionReceipt>> {
-    let start = Instant::now();
+    let _start = Instant::now();
 
     if cfg.use_flashbots {
         // Use Flashbots middleware
@@ -159,7 +159,7 @@ async fn execute_mint<M: Middleware + 'static>(
                 .collect();
 
             let mut call = contract.mint_batch(addresses?, amounts?);
-            call = call_with_gas(call, contract.client(), cfg).await?;
+            call = call_with_gas(call, contract.client().clone(), cfg).await?;
             let pending = call.send().await?;
             Ok(pending.await?)
         }
@@ -174,7 +174,7 @@ async fn execute_mint<M: Middleware + 'static>(
             let bytes = decode(sig.trim_start_matches("0x"))?;
 
             let mut call = contract.mint_with_signature(address, qty, Bytes::from(bytes));
-            call = call_with_gas(call, contract.client(), cfg).await?;
+            call = call_with_gas(call, contract.client().clone(), cfg).await?;
             let pending = call.send().await?;
             Ok(pending.await?)
         }
@@ -185,7 +185,7 @@ async fn execute_mint<M: Middleware + 'static>(
             println!("🚀 Minting to: {}", recipient);
 
             let mut call = contract.mint(address);
-            call = call_with_gas(call, contract.client(), cfg).await?;
+            call = call_with_gas(call, contract.client().clone(), cfg).await?;
             let pending = call.send().await?;
             Ok(pending.await?)
         }
@@ -194,7 +194,7 @@ async fn execute_mint<M: Middleware + 'static>(
 
 async fn call_with_gas<M: Middleware + 'static>(
     mut call: ContractCall<M, ()>,
-    client: &Arc<SignerMiddleware<M, LocalWallet>>,
+    client: Arc<M>,
     cfg: &Config,
 ) -> Result<ContractCall<M, ()>> {
     let gas_limit = if let Some(limit) = cfg.gas_limit {

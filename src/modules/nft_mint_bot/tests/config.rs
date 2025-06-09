@@ -1,7 +1,9 @@
 use nft_mint_bot::config::Config;
+use serial_test::serial;
 use std::env;
 
 #[test]
+#[serial]
 fn loads_env_vars() {
     env::set_var("PRIMARY_RPC_URL", "ws://localhost:8545");
     env::set_var("PRIVATE_KEY", "abc123");
@@ -21,9 +23,13 @@ fn loads_env_vars() {
     assert!(cfg.use_flashbots);
     assert_eq!(cfg.gas_limit, Some(123456));
     assert_eq!(cfg.gas_multiplier, 1.5);
+    env::remove_var("PRIMARY_RPC_URL");
+    env::remove_var("SECONDARY_RPC_URL");
+    env::remove_var("TERTIARY_RPC_URL");
 }
 
 #[test]
+#[serial]
 fn loads_env_vars_without_flashbots() {
     env::set_var("PRIMARY_RPC_URL", "http://localhost:8545");
     env::set_var("PRIVATE_KEY", "def456");
@@ -43,9 +49,13 @@ fn loads_env_vars_without_flashbots() {
     assert!(!cfg.use_flashbots); // Should default to false
     assert_eq!(cfg.gas_limit, Some(654321));
     assert_eq!(cfg.gas_multiplier, 2.0);
+    env::remove_var("PRIMARY_RPC_URL");
+    env::remove_var("SECONDARY_RPC_URL");
+    env::remove_var("TERTIARY_RPC_URL");
 }
 
 #[test]
+#[serial]
 fn loads_multiple_rpc_urls() {
     env::set_var("PRIMARY_RPC_URL", "ws://localhost:8545");
     env::set_var("SECONDARY_RPC_URL", "http://localhost:8546");
@@ -67,4 +77,8 @@ fn loads_multiple_rpc_urls() {
         "0x2222222222222222222222222222222222222222"
     );
     assert!(!cfg.use_flashbots);
+
+    env::remove_var("PRIMARY_RPC_URL");
+    env::remove_var("SECONDARY_RPC_URL");
+    env::remove_var("TERTIARY_RPC_URL");
 }
