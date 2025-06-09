@@ -30,4 +30,31 @@ describe('payment module', () => {
 
     (prisma as any).payment = original;
   });
+
+  it('throws when no receiver address is configured', async () => {
+    const original = prisma.payment as any;
+    const createStub = sinon.stub().resolves({ id: 'pay1' });
+    (prisma as any).payment = { create: createStub } as any;
+
+    process.env.PAYMENT_RECEIVER_ADDRESSES = '';
+
+    Object.keys(require.cache).forEach(k => {
+      if (k.includes('src/config/index')) delete (require as any).cache[k];
+      if (k.includes('src/modules/payment')) delete (require as any).cache[k];
+    });
+    const { createPayment } = await import('../src/modules/payment');
+
+    let error: any;
+    try {
+      await createPayment('u1', 'svc1', '10', PaymentCurrency.USDT, PaymentMethod.ON_CHAIN);
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.be.an('Error');
+    expect((error as Error).message).to.match(/receiver address/);
+    expect(createStub.called).to.equal(false);
+
+    (prisma as any).payment = original;
+  });
 });

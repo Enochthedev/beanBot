@@ -48,7 +48,20 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     user = await prisma.user.create({ data: { discordId: interaction.user.id, discordTag: interaction.user.tag } });
   }
 
-  const payment = await createPayment(user.id, service.id, amount, currency, PaymentMethod.ON_CHAIN);
+  let payment;
+  try {
+    payment = await createPayment(
+      user.id,
+      service.id,
+      amount,
+      currency,
+      PaymentMethod.ON_CHAIN
+    );
+  } catch (err) {
+    console.error(err);
+    await interaction.reply({ content: '❌ Payment receiver address not configured.', ephemeral: true });
+    return;
+  }
 
   if (!interaction.guild) {
     await interaction.reply({ content: '❌ Must be used inside a server.', ephemeral: true });
