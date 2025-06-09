@@ -20,6 +20,7 @@ model User {
   mintAttempts  MintAttempt[]
   walletSessions WalletSession[]
   nftHoldings   NftHolding[]
+  payments      Payment[]
 }
 
 model Subscription {
@@ -190,4 +191,50 @@ model GuildConfig {
   modRoleIds   String[] @default([])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model ServicePrice {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  price     String
+  currency  PaymentCurrency
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments Payment[]
+}
+
+enum PaymentCurrency {
+  USDT
+  USDC
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentMethod {
+  ON_CHAIN
+  PAYPAL
+  OTHER
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  userId       String
+  serviceId    String
+  amount       String
+  currency     PaymentCurrency
+  method       PaymentMethod
+  walletAddress String?
+  txHash       String?
+  channelId    String?
+  status       PaymentStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  service ServicePrice @relation(fields: [serviceId], references: [id])
 }
