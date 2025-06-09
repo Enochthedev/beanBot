@@ -1,5 +1,12 @@
 import { prisma } from '@libs/prisma';
-import { PaymentCurrency, PaymentStatus, PaymentMethod } from '@prisma/client';
+import {
+  PaymentCurrency,
+  PaymentStatus,
+  PaymentMethod,
+  SubscriptionType,
+  Payment,
+  ServicePrice,
+} from '@prisma/client';
 import { config } from '@config/index';
 
 const receiverAddresses = config.paymentReceiverAddresses;
@@ -35,10 +42,32 @@ export async function createPayment(
   });
 }
 
-export async function updatePaymentStatus(id: string, status: PaymentStatus, txHash?: string) {
-  return prisma.payment.update({
+export async function updatePaymentStatus(
+  id: string,
+  status: PaymentStatus,
+  txHash?: string
+) {
+  const payment = await prisma.payment.update({
     where: { id },
-    data: { status, txHash }
+    data: { status, txHash },
+    include: { service: true },
+  });
+
+  if (status === PaymentStatus.COMPLETED) {
+    await grantPurchasedService(payment);
+  }
+
+  return payment;
+}
+
+async function grantPurchasedService(payment: Payment & { service: ServicePrice }) {
+  const name = payment.service.name.toLowerCase();
+  const match = /^subscription-(basic|premium)$/i.exec(name);
+  if (!match) return;
+
+  const subType = match[1].toUpperCase() as SubscriptionType;
+  await prisma.subscription.create({
+    data: { userId: payment.userId, subscriptionType: subType, isActive: true },
   });
 }
 

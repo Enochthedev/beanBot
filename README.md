@@ -3,6 +3,7 @@
 A CLI-generated Discord bot in TypeScript with domain-based modular structure.
 
 For a high level setup walkthrough and command reference targeted at server owners and moderators see [docs/client_guide.md](docs/client_guide.md).
+The payment flow is documented in [docs/payment_workflow.md](docs/payment_workflow.md).
 
 
 ## Quickstart
@@ -101,7 +102,7 @@ The bot exposes several Discord slash commands:
 - `/wallet-info` - View your connected wallet
 - `/subscription-info` - Check subscription status
 - `/pay` - open a private payment ticket
-- `/confirm-payment` - confirm an on-chain payment
+- `/confirm-payment` - confirm an on-chain payment and unlock the purchased service
 - `/set-service-price` - admin command to configure service pricing
 - `/projects` - List active mint projects
 - `/mint` - Queue a mint request
