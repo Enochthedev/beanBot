@@ -25,6 +25,9 @@ The bot requires the following variables (see `.env.example`):
 - `SECONDARY_RPC_URL` / `TERTIARY_RPC_URL` – optional failover endpoints
 - `PRIVATE_KEY` – private key used to sign transactions
 - `CONTRACT_ADDRESS` – address of the mint contract
+- `USE_FLASHBOTS` – when set to `true`, the bot submits transactions through the
+  Flashbots relay at `https://relay.flashbots.net` instead of directly to
+  `RPC_URL`
 
 - `MINT_BOT_METRICS_PORT` – (optional) port for the Prometheus metrics endpoint
 

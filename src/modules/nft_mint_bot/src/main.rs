@@ -11,6 +11,8 @@ use hex::decode;
 use metrics::METRICS;
 use provider_pool::ProviderPool;
 use std::env;
+use ethers_flashbots::FlashbotsMiddleware;
+use url::Url;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -48,6 +50,9 @@ async fn main() -> Result<()> {
 
     println!("✅ Loaded {} RPC URL(s)", cfg.rpc_urls.len());
     println!("🚀 Mode: {}", mode);
+    if cfg.use_flashbots {
+        println!("⚡ Flashbots enabled");
+    }
 
     let wallet: LocalWallet = cfg.private_key.parse()?;
     let contract_addr: Address = cfg.contract_address.parse()?;
@@ -56,49 +61,81 @@ async fn main() -> Result<()> {
     for url in &cfg.rpc_urls {
         println!("🔗 Trying provider: {}", url);
 
-        let provider_result = if url.starts_with("ws") {
-            match ProviderPool::new(url.clone(), 3).await {
-                Ok(pool) => Ok(pool.get_provider().await),
-                Err(e) => Err(e.into()),
+        match try_provider(url, &wallet, contract_addr, &mode, &args, &cfg).await {
+            Ok(Some(receipt)) => {
+                let gas = receipt.gas_used.unwrap_or_default().as_u64();
+                METRICS.record_success(Instant::now().elapsed().as_secs_f64(), gas);
+                println!("✅ Minted in tx: {:#x}", receipt.transaction_hash);
+                return Ok(());
             }
-        } else {
-            Provider::<Http>::try_from(url.as_str()).map_err(Into::into)
-        };
-
-        match provider_result {
-            Ok(provider) => {
-                let client = Arc::new(SignerMiddleware::new(provider, wallet.clone()));
-                let contract = MintContract::new(contract_addr, client.clone());
-                let start = Instant::now();
-
-                match execute_mint(&mode, &args, contract, &cfg).await {
-                    Ok(Some(receipt)) => {
-                        let gas = receipt.gas_used.unwrap_or_default().as_u64();
-                        METRICS.record_success(start.elapsed().as_secs_f64(), gas);
-                        println!("✅ Minted in tx: {:#x}", receipt.transaction_hash);
-                        return Ok(());
-                    }
-                    Ok(None) => {
-                        METRICS.record_error();
-                        println!("❌ Transaction dropped");
-                        return Ok(());
-                    }
-                    Err(e) => {
-                        METRICS.record_error();
-                        eprintln!("⚠️ Mint failed on {}: {}", url, e);
-                        last_err = Some(e);
-                    }
-                }
+            Ok(None) => {
+                METRICS.record_error();
+                println!("❌ Transaction dropped");
+                return Ok(());
             }
             Err(e) => {
                 METRICS.record_error();
-                eprintln!("❌ Provider error on {}: {}", url, e);
+                eprintln!("⚠️ Provider failed on {}: {}", url, e);
                 last_err = Some(e);
             }
         }
     }
 
     Err(last_err.unwrap_or_else(|| anyhow::anyhow!("All RPC providers failed")))
+}
+
+async fn try_provider(
+    url: &str,
+    wallet: &LocalWallet,
+    contract_addr: Address,
+    mode: &str,
+    args: &[String],
+    cfg: &Config,
+) -> Result<Option<TransactionReceipt>> {
+    let start = Instant::now();
+
+    if cfg.use_flashbots {
+        // Use Flashbots middleware
+        if url.starts_with("ws") {
+            let provider = Provider::<Ws>::connect(url).await?;
+            let fb = FlashbotsMiddleware::new(
+                provider,
+                Url::parse("https://relay.flashbots.net")?,
+                wallet.clone(),
+            );
+            let client = Arc::new(SignerMiddleware::new(fb, wallet.clone()));
+            let contract = MintContract::new(contract_addr, client);
+            execute_mint(mode, args, contract, cfg).await
+        } else {
+            let provider = Provider::<Http>::try_from(url)?;
+            let fb = FlashbotsMiddleware::new(
+                provider,
+                Url::parse("https://relay.flashbots.net")?,
+                wallet.clone(),
+            );
+            let client = Arc::new(SignerMiddleware::new(fb, wallet.clone()));
+            let contract = MintContract::new(contract_addr, client);
+            execute_mint(mode, args, contract, cfg).await
+        }
+    } else {
+        // Use regular providers
+        if url.starts_with("ws") {
+            match ProviderPool::new(url.to_string(), 3).await {
+                Ok(pool) => {
+                    let provider = pool.get_provider().await;
+                    let client = Arc::new(SignerMiddleware::new(provider, wallet.clone()));
+                    let contract = MintContract::new(contract_addr, client);
+                    execute_mint(mode, args, contract, cfg).await
+                }
+                Err(e) => Err(e.into()),
+            }
+        } else {
+            let provider = Provider::<Http>::try_from(url)?;
+            let client = Arc::new(SignerMiddleware::new(provider, wallet.clone()));
+            let contract = MintContract::new(contract_addr, client);
+            execute_mint(mode, args, contract, cfg).await
+        }
+    }
 }
 
 async fn execute_mint<M: Middleware + 'static>(
