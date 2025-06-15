@@ -5,7 +5,7 @@ use std::env;
 pub struct Config {
     pub rpc_urls: Vec<String>,
     pub private_key: String,
-    pub contract_address: String,
+    pub contract_address: Option<String>,
     pub use_flashbots: bool,
     pub gas_limit: Option<u64>,
     pub gas_multiplier: f64,
@@ -44,7 +44,7 @@ impl Config {
         Self {
             rpc_urls,
             private_key: env::var("PRIVATE_KEY").expect("PRIVATE_KEY not set"),
-            contract_address: env::var("CONTRACT_ADDRESS").expect("CONTRACT_ADDRESS not set"),
+            contract_address: env::var("CONTRACT_ADDRESS").ok(),
             use_flashbots: env::var("USE_FLASHBOTS")
                 .unwrap_or_else(|_| "false".to_string())
                 .to_lowercase()
