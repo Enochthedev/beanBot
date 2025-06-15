@@ -9,6 +9,7 @@ pub struct Config {
     pub use_flashbots: bool,
     pub gas_limit: Option<u64>,
     pub gas_multiplier: f64,
+    pub auto_fetch_abi: Option<bool>,
 
 }
 
@@ -54,6 +55,7 @@ impl Config {
                 .unwrap_or_else(|_| "1.0".into())
                 .parse()
                 .expect("invalid GAS_MULTIPLIER"),
+            auto_fetch_abi: env::var("AUTO_FETCH_ABI").ok().map(|v| v.to_lowercase() == "true"),
 
         }
     }

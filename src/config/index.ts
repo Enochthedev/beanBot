@@ -23,6 +23,7 @@ export const config = {
   minBalanceBufferEth: parseFloat(process.env.MIN_BALANCE_BUFFER_ETH ?? '0.1'),
   gasMultiplier: parseFloat(process.env.GAS_MULTIPLIER ?? '1.2'),
   mintMaxRetries: parseInt(process.env.MINT_MAX_RETRIES ?? '2', 10),
+  autoFetchAbi: process.env.AUTO_FETCH_ABI === 'true',
 
   // Twitter API Configuration
   twitterClientId: process.env.TWITTER_CLIENT_ID!,

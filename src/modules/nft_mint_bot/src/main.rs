@@ -2,11 +2,13 @@ mod config;
 mod gas;
 mod metrics;
 mod provider_pool;
+mod abi;
 
 use anyhow::{anyhow, Result};
 use clap::{Parser, ValueEnum};
 use config::Config;
 use ethers::abi::{Abi, AbiParser};
+use crate::abi::auto_fetch_abi;
 use ethers::prelude::*;
 use gas::estimate_gas_limit;
 use hex::decode;
@@ -95,6 +97,8 @@ async fn main() -> Result<()> {
     let abi: Abi = if let Some(path) = cli.abi.as_deref() {
         let data = fs::read_to_string(path)?;
         serde_json::from_str(&data)?
+    } else if cfg.auto_fetch_abi.unwrap_or(false) {
+        auto_fetch_abi(&contract_addr_str, "sepolia").await?
     } else {
         AbiParser::default().parse_str(DEFAULT_ABI)?
     };
