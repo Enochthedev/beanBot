@@ -17,8 +17,8 @@ fn loads_env_vars() {
     assert_eq!(cfg.rpc_urls, vec!["ws://localhost:8545".to_string()]);
     assert_eq!(cfg.private_key, "abc123");
     assert_eq!(
-        cfg.contract_address,
-        "0x0000000000000000000000000000000000000000"
+        cfg.contract_address.as_deref(),
+        Some("0x0000000000000000000000000000000000000000")
     );
     assert!(cfg.use_flashbots);
     assert_eq!(cfg.gas_limit, Some(123456));
@@ -43,8 +43,8 @@ fn loads_env_vars_without_flashbots() {
     assert_eq!(cfg.rpc_urls, vec!["http://localhost:8545".to_string()]);
     assert_eq!(cfg.private_key, "def456");
     assert_eq!(
-        cfg.contract_address,
-        "0x1111111111111111111111111111111111111111"
+        cfg.contract_address.as_deref(),
+        Some("0x1111111111111111111111111111111111111111")
     );
     assert!(!cfg.use_flashbots); // Should default to false
     assert_eq!(cfg.gas_limit, Some(654321));
@@ -73,8 +73,8 @@ fn loads_multiple_rpc_urls() {
     ]);
     assert_eq!(cfg.private_key, "ghi789");
     assert_eq!(
-        cfg.contract_address,
-        "0x2222222222222222222222222222222222222222"
+        cfg.contract_address.as_deref(),
+        Some("0x2222222222222222222222222222222222222222")
     );
     assert!(!cfg.use_flashbots);
 
