@@ -11,6 +11,7 @@ fn loads_env_vars() {
     env::set_var("USE_FLASHBOTS", "true");
     env::set_var("MINT_GAS_LIMIT", "123456");
     env::set_var("GAS_MULTIPLIER", "1.5");
+    env::set_var("AUTO_FETCH_ABI", "true");
     
     let cfg = Config::load();
     
@@ -23,9 +24,11 @@ fn loads_env_vars() {
     assert!(cfg.use_flashbots);
     assert_eq!(cfg.gas_limit, Some(123456));
     assert_eq!(cfg.gas_multiplier, 1.5);
+    assert_eq!(cfg.auto_fetch_abi, Some(true));
     env::remove_var("PRIMARY_RPC_URL");
     env::remove_var("SECONDARY_RPC_URL");
     env::remove_var("TERTIARY_RPC_URL");
+    env::remove_var("AUTO_FETCH_ABI");
 }
 
 #[test]
@@ -37,6 +40,7 @@ fn loads_env_vars_without_flashbots() {
     env::remove_var("USE_FLASHBOTS"); // Ensure it's not set
     env::set_var("MINT_GAS_LIMIT", "654321");
     env::set_var("GAS_MULTIPLIER", "2.0");
+    env::remove_var("AUTO_FETCH_ABI");
     
     let cfg = Config::load();
     
@@ -49,6 +53,7 @@ fn loads_env_vars_without_flashbots() {
     assert!(!cfg.use_flashbots); // Should default to false
     assert_eq!(cfg.gas_limit, Some(654321));
     assert_eq!(cfg.gas_multiplier, 2.0);
+    assert_eq!(cfg.auto_fetch_abi, None);
     env::remove_var("PRIMARY_RPC_URL");
     env::remove_var("SECONDARY_RPC_URL");
     env::remove_var("TERTIARY_RPC_URL");
@@ -63,6 +68,7 @@ fn loads_multiple_rpc_urls() {
     env::set_var("PRIVATE_KEY", "ghi789");
     env::set_var("CONTRACT_ADDRESS", "0x2222222222222222222222222222222222222222");
     env::set_var("USE_FLASHBOTS", "false");
+    env::remove_var("AUTO_FETCH_ABI");
     
     let cfg = Config::load();
     
@@ -77,6 +83,7 @@ fn loads_multiple_rpc_urls() {
         Some("0x2222222222222222222222222222222222222222")
     );
     assert!(!cfg.use_flashbots);
+    assert_eq!(cfg.auto_fetch_abi, None);
 
     env::remove_var("PRIMARY_RPC_URL");
     env::remove_var("SECONDARY_RPC_URL");
