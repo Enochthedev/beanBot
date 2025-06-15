@@ -4,8 +4,8 @@ dotenv.config();
 
 export const config = {
   // Discord Bot Configuration
-  botToken: process.env.BOT_TOKEN!,
-  clientId: process.env.CLIENT_ID!,
+  botToken: process.env.DISCORD_BOT_TOKEN!,
+  clientId: process.env.DISCORD_APPLICATION_ID!,
   useGlobalCommands: process.env.GLOBAL_COMMANDS === 'true',
   webhookPort: parseInt(process.env.WEBHOOK_PORT ?? '5001', 10),
   version: '0.0.1',
